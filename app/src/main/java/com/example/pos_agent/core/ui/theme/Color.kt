@@ -1,4 +1,4 @@
-package com.example.pos_agent.ui.theme
+package com.example.pos_agent.core.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
