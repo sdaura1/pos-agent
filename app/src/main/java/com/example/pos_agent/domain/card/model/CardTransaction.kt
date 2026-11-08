@@ -1,8 +1,6 @@
 package com.example.pos_agent.domain.card.model
 
-import com.example.pos_agent.domain.shared.MerchantId
 import com.example.pos_agent.domain.shared.Money
-import com.example.pos_agent.domain.shared.TerminalId
 
 /**
  * Aggregate root for one card operation.
@@ -13,8 +11,8 @@ import com.example.pos_agent.domain.shared.TerminalId
 data class CardTransaction(
     val id: TransactionId,
     val reference: TransactionReference,
-    val terminalId: TerminalId,
-    val merchantId: MerchantId,
+    val terminalId: String,
+    val merchantId: String,
     val type: TransactionType,
     val amount: Money,
     val stan: Stan,

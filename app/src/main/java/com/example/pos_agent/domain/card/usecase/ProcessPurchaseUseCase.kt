@@ -3,6 +3,8 @@ package com.example.pos_agent.domain.card.usecase
 import com.example.pos_agent.core.error.DomainError
 import com.example.pos_agent.core.result.Outcome
 import com.example.pos_agent.core.time.Clock
+import com.example.pos_agent.domain.card.model.CardAuthorizationRequest
+import com.example.pos_agent.domain.card.model.CardOperationResult
 import com.example.pos_agent.domain.card.model.CardToken
 import com.example.pos_agent.domain.card.model.CardTransaction
 import com.example.pos_agent.domain.card.model.MaskedPan
@@ -11,13 +13,9 @@ import com.example.pos_agent.domain.card.model.TransactionId
 import com.example.pos_agent.domain.card.model.TransactionReference
 import com.example.pos_agent.domain.card.model.TransactionStatus
 import com.example.pos_agent.domain.card.model.TransactionType
-import com.example.pos_agent.domain.card.port.CardAuthorizationRequest
-import com.example.pos_agent.domain.card.port.CardOperationResult
 import com.example.pos_agent.domain.card.port.NibssCardGateway
 import com.example.pos_agent.domain.card.repository.CardTransactionRepository
-import com.example.pos_agent.domain.shared.MerchantId
 import com.example.pos_agent.domain.shared.Money
-import com.example.pos_agent.domain.shared.TerminalId
 import java.util.UUID
 
 /**
@@ -26,7 +24,7 @@ import java.util.UUID
  * The local record is written before the network call so a crash or timeout
  * leaves a trace that can be reconciled.
  */
-class ProcessPurchase(
+class ProcessPurchaseUseCase(
     private val transactions: CardTransactionRepository,
     private val gateway: NibssCardGateway,
     private val clock: Clock,
@@ -113,8 +111,8 @@ class ProcessPurchase(
 
 data class PurchaseCommand(
     val reference: TransactionReference,
-    val terminalId: TerminalId,
-    val merchantId: MerchantId,
+    val terminalId: String,
+    val merchantId: String,
     val amount: Money,
     val stan: Stan,
     val card: CardToken,

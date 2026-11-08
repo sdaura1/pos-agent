@@ -3,13 +3,13 @@ package com.example.pos_agent.domain.card.usecase
 import com.example.pos_agent.core.error.DomainError
 import com.example.pos_agent.core.result.Outcome
 import com.example.pos_agent.core.time.Clock
+import com.example.pos_agent.domain.card.model.CardRefundRequest
 import com.example.pos_agent.domain.card.model.CardTransaction
 import com.example.pos_agent.domain.card.model.Stan
 import com.example.pos_agent.domain.card.model.TransactionId
 import com.example.pos_agent.domain.card.model.TransactionReference
 import com.example.pos_agent.domain.card.model.TransactionStatus
 import com.example.pos_agent.domain.card.model.TransactionType
-import com.example.pos_agent.domain.card.port.CardRefundRequest
 import com.example.pos_agent.domain.card.port.NibssCardGateway
 import com.example.pos_agent.domain.card.repository.CardTransactionRepository
 import com.example.pos_agent.domain.shared.Money
@@ -20,7 +20,7 @@ import java.util.UUID
  * Partial refunds are allowed; the sum of approved refunds can never exceed
  * the original amount.
  */
-class RefundTransaction(
+class RefundTransactionUseCase(
     private val transactions: CardTransactionRepository,
     private val gateway: NibssCardGateway,
     private val clock: Clock,

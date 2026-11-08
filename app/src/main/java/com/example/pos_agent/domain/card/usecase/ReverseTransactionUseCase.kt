@@ -3,13 +3,13 @@ package com.example.pos_agent.domain.card.usecase
 import com.example.pos_agent.core.error.DomainError
 import com.example.pos_agent.core.result.Outcome
 import com.example.pos_agent.core.time.Clock
+import com.example.pos_agent.domain.card.model.CardReversalRequest
 import com.example.pos_agent.domain.card.model.CardTransaction
 import com.example.pos_agent.domain.card.model.Stan
 import com.example.pos_agent.domain.card.model.TransactionId
 import com.example.pos_agent.domain.card.model.TransactionReference
 import com.example.pos_agent.domain.card.model.TransactionStatus
 import com.example.pos_agent.domain.card.model.TransactionType
-import com.example.pos_agent.domain.card.port.CardReversalRequest
 import com.example.pos_agent.domain.card.port.NibssCardGateway
 import com.example.pos_agent.domain.card.repository.CardTransactionRepository
 import java.util.UUID
@@ -18,7 +18,7 @@ import java.util.UUID
  * Reversal: cancel an approved purchase, typically in the same batch/day.
  * A reversal is stored as a separate transaction linked to the original.
  */
-class ReverseTransaction(
+class ReverseTransactionUseCase(
     private val transactions: CardTransactionRepository,
     private val gateway: NibssCardGateway,
     private val clock: Clock,

@@ -40,7 +40,7 @@ data ─┘
 | `settlement` | End-of-day batch settlement and reconciliation reports |
 | `merchant` | Merchant configuration (reserved) |
 
-Cross-context references use identifiers from `domain/shared/Ids.kt` rather
+Cross-context references use identifiers (terminal ID, merchant ID) rather
 than object references.
 
 ## The card transaction aggregate
@@ -83,9 +83,9 @@ The domain only sees `CardAuthorizationRequest`, `CardReversalRequest`,
 
 | Use case | Rule |
 | --- | --- |
-| `ProcessPurchase` | Persist locally, authorise, then apply APPROVED/DECLINED/UNKNOWN |
-| `ReverseTransaction` | Only an approved purchase with an RRN can be reversed |
-| `RefundTransaction` | Only an approved purchase; partial refunds capped at the original amount |
+| `ProcessPurchaseUseCase` | Persist locally, authorise, then apply APPROVED/DECLINED/UNKNOWN |
+| `ReverseTransactionUseCase` | Only an approved purchase with an RRN can be reversed |
+| `RefundTransactionUseCase` | Only an approved purchase; partial refunds capped at the original amount |
 
 Use cases orchestrate aggregates and ports. They contain no Android or Compose
 code.

@@ -1,16 +1,12 @@
 package com.example.pos_agent.domain.card.port
 
 import com.example.pos_agent.core.result.Outcome
-import com.example.pos_agent.domain.card.model.CardToken
-import com.example.pos_agent.domain.card.model.MaskedPan
-import com.example.pos_agent.domain.card.model.ResponseCode
-import com.example.pos_agent.domain.card.model.Rrn
-import com.example.pos_agent.domain.card.model.Stan
+import com.example.pos_agent.domain.card.model.CardAuthorizationRequest
+import com.example.pos_agent.domain.card.model.CardOperationResult
+import com.example.pos_agent.domain.card.model.CardRefundRequest
+import com.example.pos_agent.domain.card.model.CardReversalRequest
 import com.example.pos_agent.domain.card.model.TransactionReference
 import com.example.pos_agent.domain.card.model.TransactionStatus
-import com.example.pos_agent.domain.shared.MerchantId
-import com.example.pos_agent.domain.shared.Money
-import com.example.pos_agent.domain.shared.TerminalId
 
 /**
  * Port for the NIBSS card switch.
@@ -28,38 +24,3 @@ interface NibssCardGateway {
 
     suspend fun query(reference: TransactionReference): Outcome<CardOperationResult>
 }
-
-data class CardAuthorizationRequest(
-    val reference: TransactionReference,
-    val stan: Stan,
-    val terminalId: TerminalId,
-    val merchantId: MerchantId,
-    val amount: Money,
-    val card: CardToken,
-    val maskedPan: MaskedPan,
-)
-
-data class CardReversalRequest(
-    val reference: TransactionReference,
-    val originalRrn: Rrn,
-    val stan: Stan,
-    val terminalId: TerminalId,
-    val amount: Money,
-)
-
-data class CardRefundRequest(
-    val reference: TransactionReference,
-    val originalRrn: Rrn,
-    val stan: Stan,
-    val terminalId: TerminalId,
-    val amount: Money,
-)
-
-data class CardOperationResult(
-    val reference: TransactionReference,
-    val status: TransactionStatus,
-    val responseCode: ResponseCode,
-    val message: String,
-    val rrn: Rrn? = null,
-    val authCode: String? = null,
-)
