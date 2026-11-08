@@ -1,7 +1,7 @@
 package com.example.pos_agent.domain.card.usecase
 
 import com.example.pos_agent.core.error.DomainError
-import com.example.pos_agent.core.result.Outcome
+import com.example.pos_agent.core.result.Response
 import com.example.pos_agent.core.time.Clock
 import com.example.pos_agent.domain.card.model.CardReversalRequest
 import com.example.pos_agent.domain.card.model.CardTransaction
@@ -23,20 +23,20 @@ class ReverseTransactionUseCase(
     private val gateway: NibssCardGateway,
     private val clock: Clock,
 ) {
-    suspend operator fun invoke(command: ReversalCommand): Outcome<CardTransaction> {
+    suspend operator fun invoke(command: ReversalCommand): Response<CardTransaction> {
         val original = transactions.findById(command.originalTransactionId)
-            ?: return Outcome.Failure(
+            ?: return Response.Failure(
                 DomainError.NotFound("Transaction ${command.originalTransactionId.value} not found")
             )
 
         if (!original.isApprovedPurchase()) {
-            return Outcome.Failure(
+            return Response.Failure(
                 DomainError.Validation("Only an approved purchase can be reversed")
             )
         }
 
         val originalRrn = original.rrn
-            ?: return Outcome.Failure(
+            ?: return Response.Failure(
                 DomainError.Conflict("Original transaction has no RRN to reverse")
             )
 
@@ -53,8 +53,8 @@ class ReverseTransactionUseCase(
         )
 
         when (val saved = transactions.save(reversal)) {
-            is Outcome.Failure -> return saved
-            is Outcome.Success -> Unit
+            is Response.Failure -> return saved
+            is Response.Success -> Unit
         }
 
         val result = gateway.reverse(
@@ -68,7 +68,7 @@ class ReverseTransactionUseCase(
         )
 
         return when (result) {
-            is Outcome.Success -> {
+            is Response.Success -> {
                 val now = clock.nowEpochMillis()
                 val approved = result.value.status == TransactionStatus.APPROVED
                 val updatedReversal = if (approved) {
@@ -83,10 +83,10 @@ class ReverseTransactionUseCase(
                 }
                 transactions.save(updatedReversal)
                 if (approved) transactions.save(original.markReversed(now))
-                Outcome.Success(updatedReversal)
+                Response.Success(updatedReversal)
             }
 
-            is Outcome.Failure -> {
+            is Response.Failure -> {
                 val status = if (result.error is DomainError.Network) {
                     TransactionStatus.UNKNOWN
                 } else {
@@ -95,7 +95,7 @@ class ReverseTransactionUseCase(
                 transactions.save(
                     reversal.withStatus(status, null, clock.nowEpochMillis())
                 )
-                Outcome.Failure(result.error)
+                Response.Failure(result.error)
             }
         }
     }

@@ -103,7 +103,7 @@ Append the role so the file type is obvious from the name.
 | DTO | `Dto` | `AuthorizationRequestDto` |
 | Screen | `Screen` | `HomeScreen` |
 | ViewModel | `ViewModel` | `HomeViewModel` |
-| Command / request / result / event / model | already self-describing | `PurchaseCommand`, `CardAuthorizationRequest`, `CardOperationResult`, `CardTransactionEvent`, `CardTransaction` |
+| Command / request / result / event / model | already self-describing | `PurchaseRequest`, `CardAuthorizationRequest`, `CardOperationResult`, `CardTransactionEvent`, `CardTransaction` |
 
 ### Rules
 
@@ -132,7 +132,7 @@ A port file contains the interface and, at most, KDoc. Move every data class to 
 // domain/card/port/NibssCardGateway.kt
 package com.example.pos_agent.domain.card.port
 
-import com.example.pos_agent.core.result.Outcome
+import com.example.pos_agent.core.result.Response
 import com.example.pos_agent.domain.card.model.CardAuthorizationRequest
 import com.example.pos_agent.domain.card.model.CardOperationResult
 import com.example.pos_agent.domain.card.model.CardRefundRequest
@@ -141,10 +141,10 @@ import com.example.pos_agent.domain.card.model.TransactionReference
 import com.example.pos_agent.domain.card.model.TransactionStatus
 
 interface NibssCardGateway {
-    suspend fun authorize(request: CardAuthorizationRequest): Outcome<CardOperationResult>
-    suspend fun reverse(request: CardReversalRequest): Outcome<CardOperationResult>
-    suspend fun refund(request: CardRefundRequest): Outcome<CardOperationResult>
-    suspend fun query(reference: TransactionReference): Outcome<CardOperationResult>
+    suspend fun authorize(request: CardAuthorizationRequest): Response<CardOperationResult>
+    suspend fun reverse(request: CardReversalRequest): Response<CardOperationResult>
+    suspend fun refund(request: CardRefundRequest): Response<CardOperationResult>
+    suspend fun query(reference: TransactionReference): Response<CardOperationResult>
 }
 ```
 

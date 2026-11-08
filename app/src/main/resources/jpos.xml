@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE isopackager PUBLIC
+        "-//jPOS/jPOS Generic Packager DTD 1.0//EN"
+        "http://jpos.org/dtd/generic-packager-1.0.dtd">
+
+<!--
+    NIBSS POS Interface Specification (ISO 8583:1987, version 1.16).
+
+    One packager covers the messages this app sends and receives:
+
+      0200 Financial Transaction Request      (card purchase)
+      0210 Financial Transaction Response
+      0420 Reversal Advice                    (reversal)
+      0421 Reversal Advice Repeat
+      0430 Reversal Advice Response
+
+    The MTI decides the message type; only the fields present are packed into
+    the primary/secondary bitmap.
+
+    Transport framing (2-byte big-endian length prefix) is NOT part of this
+    packager. The socket/HTTP transport must write the length of the packed
+    payload before the payload and strip it before unpacking, e.g.:
+
+        val bytes = packager.pack(msg)
+        out.write((bytes.size shr 8) and 0xFF)
+        out.write(bytes.size and 0xFF)
+        out.write(bytes)
+
+    Load on Android with:
+
+        val stream = context.classLoader.getResourceAsStream("jpos.xml")
+        val packager = GenericPackager(stream)
+
+    NIBSS-specific formats:
+      - DE52 PIN block: Hex16  -> 8 binary bytes (16 ASCII hex chars on wire)
+      - DE53 security info: Hex96 -> 48 binary bytes
+      - DE64/DE128 SHA-256 hash: AN64 ASCII hex
+      - DE28/DE30 amounts: x+n8 (C/D sign + 8 digits)
+      - DE95 replacement amounts: 42 chars (4 x 12/9-char amounts)
+-->
+<isopackager>
+
+  <!-- 000 Message Type Indicator: 0200 purchase, 0420 reversal, 0210/0430 responses -->
+  <isofield id="0" length="4" name="MESSAGE TYPE INDICATOR" class="org.jpos.iso.IFA_NUMERIC"/>
+
+  <!-- 001 Primary bitmap: ASCII hex (16 chars), secondary bitmap is automatic -->
+  <isofield id="1" length="16" name="BIT MAP" class="org.jpos.iso.IFA_BITMAP"/>
+
+  <!-- 002 Primary Account Number (LLVAR n..19) -->
+  <isofield id="2" length="19" name="PRIMARY ACCOUNT NUMBER" class="org.jpos.iso.IFA_LLNUM"/>
+
+  <!-- 003 Processing Code: 00xxxx = purchase, 20xxxx = refund -->
+  <isofield id="3" length="6" name="PROCESSING CODE" class="org.jpos.iso.IFA_NUMERIC"/>
+
+  <!-- 004 Amount, transaction (minor units) -->
+  <isofield id="4" length="12" name="AMOUNT, TRANSACTION" class="org.jpos.iso.IFA_NUMERIC"/>
+
+  <!-- 005 Amount, settlement -->
+  <isofield id="5" length="12" name="AMOUNT, SETTLEMENT" class="org.jpos.iso.IFA_NUMERIC"/>
+
+  <!-- 007 Transmission date and time (MMDDhhmmss UTC) -->
+  <isofield id="7" length="10" name="TRANSMISSION DATE AND TIME" class="org.jpos.iso.IFA_NUMERIC"/>
+
+  <!-- 009 Conversion rate, settlement -->
+  <isofield id="9" length="8" name="CONVERSION RATE, SETTLEMENT" class="org.jpos.iso.IFA_NUMERIC"/>
+
+  <!-- 011 System Trace Audit Number -->
+  <isofield id="11" length="6" name="SYSTEM TRACE AUDIT NUMBER" class="org.jpos.iso.IFA_NUMERIC"/>
+
+  <!-- 012 Time, local transaction (hhmmss) -->
+  <isofield id="12" length="6" name="TIME, LOCAL TRANSACTION" class="org.jpos.iso.IFA_NUMERIC"/>
+
+  <!-- 013 Date, local transaction (MMDD) -->
+  <isofield id="13" length="4" name="DATE, LOCAL TRANSACTION" class="org.jpos.iso.IFA_NUMERIC"/>
+
+  <!-- 014 Date, expiration (YYMM) -->
+  <isofield id="14" length="4" name="DATE, EXPIRATION" class="org.jpos.iso.IFA_NUMERIC"/>
+
+  <!-- 015 Date, settlement (MMDD) -->
+  <isofield id="15" length="4" name="DATE, SETTLEMENT" class="org.jpos.iso.IFA_NUMERIC"/>
+
+  <!-- 016 Date, conversion (MMDD) -->
+  <isofield id="16" length="4" name="DATE, CONVERSION" class="org.jpos.iso.IFA_NUMERIC"/>
+
+  <!-- 018 Merchant type (MCC) -->
+  <isofield id="18" length="4" name="MERCHANT TYPE" class="org.jpos.iso.IFA_NUMERIC"/>
+
+  <!-- 022 POS entry mode: PAN entry (2) + PIN capability (1) -->
+  <isofield id="22" length="3" name="POS ENTRY MODE" class="org.jpos.iso.IFA_NUMERIC"/>
+
+  <!-- 023 Card sequence number -->
+  <isofield id="23" length="3" name="CARD SEQUENCE NUMBER" class="org.jpos.iso.IFA_NUMERIC"/>
+
+  <!-- 025 POS condition code -->
+  <isofield id="25" length="2" name="POS CONDITION CODE" class="org.jpos.iso.IFA_NUMERIC"/>
+
+  <!-- 026 POS PIN capture code -->
+  <isofield id="26" length="2" name="POS PIN CAPTURE CODE" class="org.jpos.iso.IFA_NUMERIC"/>
+
+  <!-- 028 Amount, transaction fee (C/D + 8 digits) -->
+  <isofield id="28" length="9" name="AMOUNT, TRANSACTION FEE" class="org.jpos.iso.IFA_AMOUNT"/>
+
+  <!-- 029 Amount, settlement fee -->
+  <isofield id="29" length="9" name="AMOUNT, SETTLEMENT FEE" class="org.jpos.iso.IFA_AMOUNT"/>
+
+  <!-- 030 Amount, transaction processing fee -->
+  <isofield id="30" length="9" name="AMOUNT, TRANSACTION PROCESSING FEE" class="org.jpos.iso.IFA_AMOUNT"/>
+
+  <!-- 031 Amount, settlement processing fee -->
+  <isofield id="31" length="9" name="AMOUNT, SETTLEMENT PROCESSING FEE" class="org.jpos.iso.IFA_AMOUNT"/>
+
+  <!-- 032 Acquiring institution ID code -->
+  <isofield id="32" length="11" name="ACQUIRING INSTITUTION ID CODE" class="org.jpos.iso.IFA_LLNUM"/>
+
+  <!-- 033 Forwarding institution ID code -->
+  <isofield id="33" length="11" name="FORWARDING INSTITUTION ID CODE" class="org.jpos.iso.IFA_LLNUM"/>
+
+  <!-- 035 Track 2 data (LLVAR z..37, '=' or 'D' separator allowed) -->
+  <isofield id="35" length="37" name="TRACK 2 DATA" class="org.jpos.iso.IFA_LLCHAR"/>
+
+  <!-- 037 Retrieval Reference Number -->
+  <isofield id="37" length="12" name="RETRIEVAL REFERENCE NUMBER" class="org.jpos.iso.IF_CHAR"/>
+
+  <!-- 038 Authorization ID response -->
+  <isofield id="38" length="6" name="AUTHORIZATION ID RESPONSE" class="org.jpos.iso.IFA_NUMERIC"/>
+
+  <!-- 039 Response code -->
+  <isofield id="39" length="2" name="RESPONSE CODE" class="org.jpos.iso.IF_CHAR"/>
+
+  <!-- 040 Service restriction code -->
+  <isofield id="40" length="3" name="SERVICE RESTRICTION CODE" class="org.jpos.iso.IFA_NUMERIC"/>
+
+  <!-- 041 Card acceptor terminal ID -->
+  <isofield id="41" length="8" name="CARD ACCEPTOR TERMINAL ID" class="org.jpos.iso.IF_CHAR"/>
+
+  <!-- 042 Card acceptor ID code (merchant ID) -->
+  <isofield id="42" length="15" name="CARD ACCEPTOR ID CODE" class="org.jpos.iso.IF_CHAR"/>
+
+  <!-- 043 Card acceptor name/location -->
+  <isofield id="43" length="40" name="CARD ACCEPTOR NAME/LOCATION" class="org.jpos.iso.IF_CHAR"/>
+
+  <!-- 049 Currency code, transaction (ISO 4217 numeric, e.g. 566 NGN) -->
+  <isofield id="49" length="3" name="CURRENCY CODE, TRANSACTION" class="org.jpos.iso.IFA_NUMERIC"/>
+
+  <!-- 050 Currency code, settlement -->
+  <isofield id="50" length="3" name="CURRENCY CODE, SETTLEMENT" class="org.jpos.iso.IFA_NUMERIC"/>
+
+  <!-- 052 PIN data: Hex16 (8 binary bytes) -->
+  <isofield id="52" length="8" name="PIN DATA" class="org.jpos.iso.IFA_BINARY"/>
+
+  <!-- 053 Security related control information: Hex96 (48 binary bytes) -->
+  <isofield id="53" length="48" name="SECURITY RELATED CONTROL INFORMATION" class="org.jpos.iso.IFA_BINARY"/>
+
+  <!-- 054 Additional amounts (LLLVAR an..120) -->
+  <isofield id="54" length="120" name="ADDITIONAL AMOUNTS" class="org.jpos.iso.IFA_LLLCHAR"/>
+
+  <!-- 055 EMV data (LLLVAR ANS..510, hex TLV) -->
+  <isofield id="55" length="510" name="ICC SYSTEM RELATED DATA" class="org.jpos.iso.IFA_LLLCHAR"/>
+
+  <!-- 056 Message reason code (LLLVAR n..4; 4021 = timeout on reversal) -->
+  <isofield id="56" length="4" name="MESSAGE REASON CODE" class="org.jpos.iso.IFA_LLLNUM"/>
+
+  <!-- 058 Authorizing agent ID code -->
+  <isofield id="58" length="11" name="AUTHORIZING AGENT ID CODE" class="org.jpos.iso.IFA_LLLNUM"/>
+
+  <!-- 059 Echo data (returned unaltered in the response) -->
+  <isofield id="59" length="255" name="TRANSPORT (ECHO) DATA" class="org.jpos.iso.IFA_LLLCHAR"/>
+
+  <!-- 060 Payment information -->
+  <isofield id="60" length="999" name="PAYMENT INFORMATION" class="org.jpos.iso.IFA_LLLCHAR"/>
+
+  <!-- 062 Private field, management data 1 -->
+  <isofield id="62" length="999" name="PRIVATE FIELD, MANAGEMENT DATA 1" class="org.jpos.iso.IFA_LLLCHAR"/>
+
+  <!-- 063 Private field, management data 2 -->
+  <isofield id="63" length="9999" name="PRIVATE FIELD, MANAGEMENT DATA 2" class="org.jpos.iso.IFA_LLLLCHAR"/>
+
+  <!-- 064 Primary message hash value (SHA-256, AN64) -->
+  <isofield id="64" length="64" name="PRIMARY MESSAGE HASH VALUE" class="org.jpos.iso.IF_CHAR"/>
+
+  <!-- 067 Extended payment code -->
+  <isofield id="67" length="2" name="EXTENDED PAYMENT CODE" class="org.jpos.iso.IFA_NUMERIC"/>
+
+  <!-- 090 Original data elements:
+       original MTI (4) + STAN (6) + transmission date/time (10)
+       + acquirer ID (11) + forwarding ID (11) = 42 -->
+  <isofield id="90" length="42" name="ORIGINAL DATA ELEMENTS" class="org.jpos.iso.IFA_NUMERIC"/>
+
+  <!-- 095 Replacement amounts: transaction (12) + settlement (12)
+       + transaction fee (9) + settlement fee (9) = 42 -->
+  <isofield id="95" length="42" name="REPLACEMENT AMOUNTS" class="org.jpos.iso.IF_CHAR"/>
+
+  <!-- 098 Payee -->
+  <isofield id="98" length="25" name="PAYEE" class="org.jpos.iso.IF_CHAR"/>
+
+  <!-- 100 Receiving institution ID code -->
+  <isofield id="100" length="11" name="RECEIVING INSTITUTION ID CODE" class="org.jpos.iso.IFA_LLNUM"/>
+
+  <!-- 102 Account identification 1 -->
+  <isofield id="102" length="28" name="ACCOUNT IDENTIFICATION 1" class="org.jpos.iso.IFA_LLNUM"/>
+
+  <!-- 103 Account identification 2 -->
+  <isofield id="103" length="28" name="ACCOUNT IDENTIFICATION 2" class="org.jpos.iso.IFA_LLNUM"/>
+
+  <!-- 123 POS data code (LLLVAR an15) -->
+  <isofield id="123" length="15" name="POS DATA CODE" class="org.jpos.iso.IFA_LLLCHAR"/>
+
+  <!-- 124 NFC data (LLLLVAR ans..9999) -->
+  <isofield id="124" length="9999" name="NEAR FIELD COMMUNICATION DATA" class="org.jpos.iso.IFA_LLLLCHAR"/>
+
+  <!-- 128 Secondary message hash value (SHA-256, AN64) -->
+  <isofield id="128" length="64" name="SECONDARY MESSAGE HASH VALUE" class="org.jpos.iso.IF_CHAR"/>
+
+</isopackager>

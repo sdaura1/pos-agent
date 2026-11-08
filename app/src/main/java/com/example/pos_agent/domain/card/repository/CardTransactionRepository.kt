@@ -1,6 +1,6 @@
 package com.example.pos_agent.domain.card.repository
 
-import com.example.pos_agent.core.result.Outcome
+import com.example.pos_agent.core.result.Response
 import com.example.pos_agent.domain.card.model.CardTransaction
 import com.example.pos_agent.domain.card.model.TransactionId
 import com.example.pos_agent.domain.card.model.TransactionReference
@@ -9,7 +9,7 @@ import com.example.pos_agent.domain.card.model.TransactionReference
  * Port. The implementation lives in `data/repository` (Room, SQLDelight, ...).
  */
 interface CardTransactionRepository {
-    suspend fun save(transaction: CardTransaction): Outcome<Unit>
+    suspend fun save(transaction: CardTransaction): Response<Unit>
 
     suspend fun findById(id: TransactionId): CardTransaction?
 

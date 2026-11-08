@@ -90,6 +90,14 @@ The domain only sees `CardAuthorizationRequest`, `CardReversalRequest`,
 Use cases orchestrate aggregates and ports. They contain no Android or Compose
 code.
 
+## Responses and errors
+
+Every adapter returns `core/result/Response<T>` — `Success(value)` or
+`Failure(DomainError)` — regardless of whether the value came from NIBSS (REST
+or ISO 8583), the local database, or a socket. Transport exceptions are
+translated into `DomainError` inside `data/`; nothing transport-specific
+escapes the adapter.
+
 ## Money
 
 `Money` stores `Long` minor units (kobo) plus a `Currency`. Never use

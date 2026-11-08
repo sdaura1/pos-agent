@@ -1,7 +1,7 @@
 package com.example.pos_agent.domain.card.usecase
 
 import com.example.pos_agent.core.error.DomainError
-import com.example.pos_agent.core.result.Outcome
+import com.example.pos_agent.core.result.Response
 import com.example.pos_agent.core.time.Clock
 import com.example.pos_agent.domain.card.model.CardRefundRequest
 import com.example.pos_agent.domain.card.model.CardTransaction
@@ -25,25 +25,25 @@ class RefundTransactionUseCase(
     private val gateway: NibssCardGateway,
     private val clock: Clock,
 ) {
-    suspend operator fun invoke(command: RefundCommand): Outcome<CardTransaction> {
+    suspend operator fun invoke(command: RefundCommand): Response<CardTransaction> {
         val original = transactions.findById(command.originalTransactionId)
-            ?: return Outcome.Failure(
+            ?: return Response.Failure(
                 DomainError.NotFound("Transaction ${command.originalTransactionId.value} not found")
             )
 
         if (!original.isApprovedPurchase()) {
-            return Outcome.Failure(
+            return Response.Failure(
                 DomainError.Validation("Only an approved purchase can be refunded")
             )
         }
 
         val originalRrn = original.rrn
-            ?: return Outcome.Failure(
+            ?: return Response.Failure(
                 DomainError.Conflict("Original transaction has no RRN to refund")
             )
 
         if (command.amount > original.amount) {
-            return Outcome.Failure(
+            return Response.Failure(
                 DomainError.Validation("Refund amount exceeds the original amount")
             )
         }
@@ -53,7 +53,7 @@ class RefundTransactionUseCase(
             .fold(Money.zero(original.amount.currency)) { total, refund -> total + refund.amount }
 
         if (command.amount > original.amount - alreadyRefunded) {
-            return Outcome.Failure(
+            return Response.Failure(
                 DomainError.Validation("Refund exceeds the remaining refundable amount")
             )
         }
@@ -71,8 +71,8 @@ class RefundTransactionUseCase(
         )
 
         when (val saved = transactions.save(refund)) {
-            is Outcome.Failure -> return saved
-            is Outcome.Success -> Unit
+            is Response.Failure -> return saved
+            is Response.Success -> Unit
         }
 
         val result = gateway.refund(
@@ -86,7 +86,7 @@ class RefundTransactionUseCase(
         )
 
         return when (result) {
-            is Outcome.Success -> {
+            is Response.Success -> {
                 val now = clock.nowEpochMillis()
                 val approved = result.value.status == TransactionStatus.APPROVED
                 val updatedRefund = if (approved) {
@@ -106,10 +106,10 @@ class RefundTransactionUseCase(
                 if (approved && alreadyRefunded + command.amount == original.amount) {
                     transactions.save(original.markRefunded(now))
                 }
-                Outcome.Success(updatedRefund)
+                Response.Success(updatedRefund)
             }
 
-            is Outcome.Failure -> {
+            is Response.Failure -> {
                 val status = if (result.error is DomainError.Network) {
                     TransactionStatus.UNKNOWN
                 } else {
@@ -118,7 +118,7 @@ class RefundTransactionUseCase(
                 transactions.save(
                     refund.withStatus(status, null, clock.nowEpochMillis())
                 )
-                Outcome.Failure(result.error)
+                Response.Failure(result.error)
             }
         }
     }
