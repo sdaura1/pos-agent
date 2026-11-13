@@ -1,30 +1,39 @@
 package com.example.pos_agent.ui.navigation
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavDestination.Companion.hasRoute
+import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.toRoute
-import com.example.pos_agent.domain.auth.model.AuthSession
-import com.example.pos_agent.domain.auth.model.User
-import com.example.pos_agent.ui.amount.AmountScreen
-import com.example.pos_agent.ui.home.HomeScreen
+import com.example.pos_agent.R
 import com.example.pos_agent.ui.main.AppAuthState
 import com.example.pos_agent.ui.main.MainViewModel
 import com.example.pos_agent.ui.navigation.navGraph.authNavGraph
+import com.example.pos_agent.ui.navigation.navGraph.mainNavGraph
 import com.example.pos_agent.ui.navigation.route.AppRoute
+import com.example.pos_agent.ui.navigation.route.AuthGraphRoute
 import com.example.pos_agent.ui.navigation.route.MainGraphRoute
-import com.example.pos_agent.ui.profile.ProfileScreen
-import com.example.pos_agent.ui.transaction.TransactionHistoryScreen
+import kotlin.reflect.KClass
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppRoot(
     mainViewModel: MainViewModel,
@@ -34,98 +43,92 @@ fun AppRoot(
     val uiState by mainViewModel.loadState.collectAsStateWithLifecycle()
     val session by mainViewModel.session.collectAsStateWithLifecycle()
 
-    if (uiState.isLoading) {
-        LoadingScreen(modifier = modifier)
-        return
-    }
-
-    val startDestination: Any = if (uiState.authState == AppAuthState.AUTHENTICATED) {
-        val currentSession = session
-        if (currentSession == null) {
-            LoadingScreen(modifier = modifier)
-            return
-        }
-        currentSession.toMainGraphRoute()
-    } else {
-        AppRoute.AuthGraph
-    }
-
-    NavHost(
-        navController = navController,
-        startDestination = startDestination,
-        modifier = modifier.fillMaxSize(),
-    ) {
-        authNavGraph(
-            navController = navController,
-            onAuthenticated = { authSession ->
-                mainViewModel.onAuthenticated(authSession)
-                navController.navigate(authSession.toMainGraphRoute()) {
-                    popUpTo(AppRoute.AuthGraph) { inclusive = true }
+    LaunchedEffect(uiState.authState, session) {
+        val authState = uiState.authState ?: return@LaunchedEffect
+        when {
+            authState == AppAuthState.AUTHENTICATED && session != null -> {
+                if (!navController.isInGraph(AppRoute.MainGraph::class)) {
+                    navController.navigate(AppRoute.MainGraph) {
+                        popUpTo(navController.graph.id) { inclusive = true }
+                        launchSingleTop = true
+                    }
                 }
-            },
-        )
+            }
 
-        composable<AppRoute.MainGraph> { entry ->
-            val route = entry.toRoute<AppRoute.MainGraph>()
-            HomeScreen(
-                user = route.toUser(),
-                onAmountClick = {
-                    navController.navigate(MainGraphRoute.Amount)
-                },
-                onProfileClick = {
-                    navController.navigate(MainGraphRoute.Profile)
-                },
-                onTransactionHistoryClick = {
-                    navController.navigate(MainGraphRoute.TransactionHistory)
-                },
-            )
+            authState == AppAuthState.UNAUTHENTICATED && session == null -> {
+                if (!navController.isInGraph(AppRoute.AuthGraph::class)) {
+                    navController.navigate(AppRoute.AuthGraph) {
+                        popUpTo(navController.graph.id) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                }
+            }
         }
+    }
 
-        composable<MainGraphRoute.TransactionHistory> {
-            TransactionHistoryScreen()
-        }
+    val backStackEntry by navController.currentBackStackEntryAsState()
+    val currentDestination = backStackEntry?.destination
+    val titleRes = when {
+        currentDestination?.hasRoute(AuthGraphRoute.ResetPin::class) == true ->
+            R.string.reset_pin_title
 
-        composable<MainGraphRoute.Amount> {
-            AmountScreen()
-        }
+        currentDestination?.hasRoute(AuthGraphRoute.SetPin::class) == true ->
+            R.string.set_pin_title
 
-        composable<MainGraphRoute.Profile> {
-            val currentSession = session
-            if (currentSession != null) {
-                ProfileScreen(
-                    user = currentSession.user,
-                    onLogout = {
-                        mainViewModel.logout()
-                        navController.navigate(AppRoute.AuthGraph) {
-                            popUpTo(navController.graph.id) { inclusive = true }
+        currentDestination?.hasRoute(MainGraphRoute.TransactionHistory::class) == true ->
+            R.string.transaction_history_title
+
+        currentDestination?.hasRoute(MainGraphRoute.Amount::class) == true ->
+            R.string.amount_title
+
+        currentDestination?.hasRoute(MainGraphRoute.Profile::class) == true ->
+            R.string.profile_title
+
+        else -> null
+    }
+
+    Scaffold(
+        modifier = modifier.fillMaxSize(),
+        topBar = {
+            if (titleRes != null) {
+                TopAppBar(
+                    title = { Text(stringResource(titleRes)) },
+                    navigationIcon = {
+                        IconButton(onClick = { navController.navigateUp() }) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = stringResource(R.string.nav_back),
+                            )
                         }
                     },
                 )
             }
+        },
+    ) { innerPadding ->
+        NavHost(
+            navController = navController,
+            startDestination = AppRoute.Splash,
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize(),
+        ) {
+            composable<AppRoute.Splash> {
+                LoadingScreen()
+            }
+
+            authNavGraph(
+                navController = navController,
+                onAuthenticated = mainViewModel::onAuthenticated,
+            )
+
+            mainNavGraph(
+                navController = navController,
+                mainViewModel = mainViewModel,
+                onLogout = mainViewModel::logout,
+            )
         }
     }
 }
 
-private fun AuthSession.toMainGraphRoute() = AppRoute.MainGraph(
-    username = user.username,
-    displayName = user.displayName,
-    userId = user.id,
-    role = user.role,
-)
-
-private fun AppRoute.MainGraph.toUser() = User(
-    id = userId,
-    username = username,
-    displayName = displayName,
-    role = role,
-)
-
-@Composable
-private fun LoadingScreen(modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center,
-    ) {
-        CircularProgressIndicator()
-    }
-}
+private fun NavHostController.isInGraph(graphRoute: KClass<*>): Boolean =
+    currentBackStackEntry?.destination?.hierarchy?.any { it.hasRoute(graphRoute) } == true

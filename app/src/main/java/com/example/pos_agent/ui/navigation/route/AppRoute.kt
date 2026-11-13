@@ -5,13 +5,11 @@ import kotlinx.serialization.Serializable
 sealed interface AppRoute {
 
     @Serializable
-    data object AuthGraph: AppRoute
+    data object Splash : AppRoute
 
     @Serializable
-    data class MainGraph(
-        val username: String,
-        val displayName: String,
-        val userId: String,
-        val role: String,
-        ): AppRoute
+    data object AuthGraph : AppRoute
+
+    @Serializable
+    data object MainGraph : AppRoute
 }

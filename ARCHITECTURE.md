@@ -95,10 +95,11 @@ plus the current `AuthSession`. `MainLoadState` is `Loading` or
 `Loaded(AppAuthState)`; `AppAuthState` is `AUTHENTICATED` or `UNAUTHENTICATED`.
 `LoginViewModel` remains form-specific.
 
-The UI has a single auth gate: `AppRoot` composes the root `NavHost` and starts
-at the auth graph when unauthenticated or the signed-in graph when
-authenticated. Because login is not part of the signed-in graph, Back cannot
-reveal a protected screen.
+The UI has a single auth gate: `AppRoot` composes one root `NavHost` with a
+fixed `Splash` start destination. A single effect observes `MainUiState` and
+the current `AuthSession`, then navigates to the auth graph when unauthenticated
+or the signed-in graph when authenticated, clearing the previous stack. Because
+login is not part of the signed-in graph, Back cannot reveal a protected screen.
 
 The auth service base URL is supplied at build time via the `AUTH_BASE_URL`
 Gradle property. Invalid credentials must return `401`; the client maps that
@@ -110,9 +111,12 @@ a string resource, so the adapters never contain user-facing text.
 ## Navigation
 
 Routes are serializable types (`AppRoute`, `AuthGraphRoute`, `MainGraphRoute`)
-rather than strings. `authNavGraph` owns Login, Reset PIN and Set PIN. The
-signed-in graph contains Dashboard, Transaction History, Amount and Profile.
-The dashboard is the navigation hub; there is no persistent bottom navigation.
+rather than strings. The root graph owns a `Splash` gate, the auth graph (Login,
+Reset PIN and Set PIN), and the signed-in graph (Dashboard, Transaction History,
+Amount and Profile). The signed-in graph's start destination is the dashboard;
+there is no persistent bottom navigation. The session is read from
+`MainViewModel`, so routes do not carry user data. The dashboard is the
+navigation hub.
 
 ## Dependency injection
 

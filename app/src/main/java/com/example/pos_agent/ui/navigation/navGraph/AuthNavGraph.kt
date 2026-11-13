@@ -5,6 +5,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
+import androidx.navigation.toRoute
 import com.example.pos_agent.domain.auth.model.AuthSession
 import com.example.pos_agent.ui.auth.LoginScreen
 import com.example.pos_agent.ui.auth.LoginViewModel
@@ -33,15 +34,17 @@ fun NavGraphBuilder.authNavGraph(
 
         composable<AuthGraphRoute.ResetPin> {
             ResetPinScreen(
-                onContinue = {
-                    navController.navigate(AuthGraphRoute.SetPin)
+                onContinue = { username ->
+                    navController.navigate(AuthGraphRoute.SetPin(username))
                 },
             )
         }
 
-        composable<AuthGraphRoute.SetPin> {
+        composable<AuthGraphRoute.SetPin> { entry ->
+            val route = entry.toRoute<AuthGraphRoute.SetPin>()
             SetPinScreen(
-                onPinSet = {
+                username = route.username,
+                onPinSet = { _ ->
                     // TODO: Complete the authenticated session after PIN setup once the PIN API is wired.
                     navController.navigate(AuthGraphRoute.Login) {
                         popUpTo(AuthGraphRoute.Login) { inclusive = true }

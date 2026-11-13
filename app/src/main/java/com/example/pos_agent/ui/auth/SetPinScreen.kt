@@ -36,6 +36,7 @@ import com.example.pos_agent.core.ui.theme.POSAGENTTheme
 
 @Composable
 fun SetPinScreen(
+    username: String,
     onPinSet: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -64,6 +65,12 @@ fun SetPinScreen(
         Text(
             text = stringResource(R.string.set_pin_subtitle),
             style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = stringResource(R.string.set_pin_for_user, username),
+            style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         Spacer(modifier = Modifier.height(24.dp))
@@ -133,6 +140,6 @@ private const val PIN_MAX_LENGTH = 6
 @Composable
 private fun SetPinScreenPreview() {
     POSAGENTTheme {
-        SetPinScreen(onPinSet = {})
+        SetPinScreen(username = "operator", onPinSet = {})
     }
 }
