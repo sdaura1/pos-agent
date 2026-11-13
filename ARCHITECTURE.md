@@ -35,6 +35,7 @@ data ─┘
 
 | Context | Responsibility |
 | --- | --- |
+| `auth` | Operator sign-in and durable session state |
 | `card` | Card purchase, reversal, refund, reconciliation |
 | `terminal` | Terminal and merchant credentials (TID/MID) |
 | `settlement` | End-of-day batch settlement and reconciliation reports |
@@ -79,10 +80,55 @@ NIBSS is an external system, not a bounded context. It is reached through the
 The domain only sees `CardAuthorizationRequest`, `CardReversalRequest`,
 `CardRefundRequest` and `CardOperationResult`.
 
+## Authentication
+
+Sign-in is a separate bounded context reached through `AuthRepository` in
+`domain/auth/port/`. `AuthRepositoryImpl` calls the remote auth service with
+Retrofit and stores the resulting `AuthSession` through the `SessionStore`
+port. Access and refresh tokens are encrypted with an Android Keystore AES/GCM
+key before they reach DataStore, and are excluded from backup. Passwords are
+never stored.
+
+`MainViewModel` is the activity-scoped root state holder. It restores the
+stored session at startup and exposes `MainUiState` (wrapping `MainLoadState`)
+plus the current `AuthSession`. `MainLoadState` is `Loading` or
+`Loaded(AppAuthState)`; `AppAuthState` is `AUTHENTICATED` or `UNAUTHENTICATED`.
+`LoginViewModel` remains form-specific.
+
+The UI has a single auth gate: `AppRoot` composes the root `NavHost` and starts
+at the auth graph when unauthenticated or the signed-in graph when
+authenticated. Because login is not part of the signed-in graph, Back cannot
+reveal a protected screen.
+
+The auth service base URL is supplied at build time via the `AUTH_BASE_URL`
+Gradle property. Invalid credentials must return `401`; the client maps that
+to a generic "Invalid username or password" message.
+
+Auth failures carry a stable `DomainError.code`. The UI resolves that code to
+a string resource, so the adapters never contain user-facing text.
+
+## Navigation
+
+Routes are serializable types (`AppRoute`, `AuthGraphRoute`, `MainGraphRoute`)
+rather than strings. `authNavGraph` owns Login, Reset PIN and Set PIN. The
+signed-in graph contains Dashboard, Transaction History, Amount and Profile.
+The dashboard is the navigation hub; there is no persistent bottom navigation.
+
+## Dependency injection
+
+Hilt wires the app. `PosAgentApplication` is annotated `@HiltAndroidApp`,
+`MainActivity` uses `@AndroidEntryPoint`, and Compose obtains ViewModels with
+`hiltViewModel()`. Network providers live in `di/NetworkModule`, port bindings
+in `di/AuthModule` and `di/StorageModule`, and shared providers in
+`di/AppModule`. Use cases and adapters are constructor-injected.
+
 ## Use cases
 
 | Use case | Rule |
 | --- | --- |
+| `LoginUseCase` | Validate input and authenticate over TLS |
+| `RestoreSessionUseCase` | Restore a stored, unexpired session |
+| `LogoutUseCase` | Clear the stored session |
 | `ProcessPurchaseUseCase` | Persist locally, authorise, then apply APPROVED/DECLINED/UNKNOWN |
 | `ReverseTransactionUseCase` | Only an approved purchase with an RRN can be reversed |
 | `RefundTransactionUseCase` | Only an approved purchase; partial refunds capped at the original amount |

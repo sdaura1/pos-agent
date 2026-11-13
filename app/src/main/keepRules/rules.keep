@@ -1,8 +1,16 @@
-# Add project specific R8 rules here.
-# AGP will combine all keep rule files in src/main/keepRules to pass to R8
-#
-# For more details, see
-#   https://d.android.com/r/tools/r8/keep-rules
+# jPOS bundles optional Q2/server modules whose dependencies are excluded for
+# Android. Only the ISO 8583 core is used, so silence the missing references.
+-dontwarn org.bouncycastle.**
+-dontwarn org.apache.sshd.**
+-dontwarn org.osgi.**
+-dontwarn org.yaml.snakeyaml.**
+-dontwarn jdbm.**
+-dontwarn com.sleepycat.**
+-dontwarn net.i2p.crypto.**
+-dontwarn org.jline.**
+-dontwarn bsh.**
+-dontwarn org.apache.commons.cli.**
+-dontwarn org.hdrhistogram.**
 
 # If your project uses WebView with JS, uncomment the following
 # and specify the fully qualified class name to the JavaScript interface

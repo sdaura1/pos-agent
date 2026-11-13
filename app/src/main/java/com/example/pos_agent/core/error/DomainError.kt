@@ -7,19 +7,33 @@ package com.example.pos_agent.core.error
 sealed interface DomainError {
     val message: String
 
-    data class Validation(override val message: String) : DomainError
+    /** Stable identifier the UI can map to a localized message. */
+    val code: String? get() = null
 
-    data class NotFound(override val message: String) : DomainError
+    data class Validation(
+        override val message: String,
+        override val code: String? = null,
+    ) : DomainError
 
-    data class Conflict(override val message: String) : DomainError
+    data class NotFound(
+        override val message: String,
+        override val code: String? = null,
+    ) : DomainError
+
+    data class Conflict(
+        override val message: String,
+        override val code: String? = null,
+    ) : DomainError
 
     data class Network(
         override val message: String,
         val cause: Throwable? = null,
+        override val code: String? = null,
     ) : DomainError
 
     data class Unknown(
         override val message: String,
         val cause: Throwable? = null,
+        override val code: String? = null,
     ) : DomainError
 }
