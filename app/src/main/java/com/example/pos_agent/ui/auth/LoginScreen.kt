@@ -1,7 +1,6 @@
 package com.example.pos_agent.ui.auth
 
 import android.util.Log
-import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -30,7 +29,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -47,7 +45,6 @@ import com.example.pos_agent.core.ui.theme.POSAGENTTheme
 import com.example.pos_agent.domain.auth.model.AuthErrorCode
 import com.example.pos_agent.domain.auth.model.AuthSession
 import com.example.pos_agent.domain.auth.model.LoginUiEvent
-import kotlinx.coroutines.flow.collect
 
 @Composable
 fun LoginScreen(

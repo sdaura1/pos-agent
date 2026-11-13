@@ -13,6 +13,8 @@
       0420 Reversal Advice                    (reversal)
       0421 Reversal Advice Repeat
       0430 Reversal Advice Response
+      0800 Network Management Request         (sign-on, key/parameter download)
+      0810 Network Management Response
 
     The MTI decides the message type; only the fields present are packed into
     the primary/secondary bitmap.
@@ -32,11 +34,12 @@
         val packager = GenericPackager(stream)
 
     NIBSS-specific formats:
-      - DE52 PIN block: Hex16  -> 8 binary bytes (16 ASCII hex chars on wire)
-      - DE53 security info: Hex96 -> 48 binary bytes
+      - DE52 PIN block: Hex16 -> 16 ASCII hex characters (8-byte block)
+      - DE53 security info: Hex96 -> 96 ASCII hex characters (48 bytes)
       - DE64/DE128 SHA-256 hash: AN64 ASCII hex
       - DE28/DE30 amounts: x+n8 (C/D sign + 8 digits)
       - DE95 replacement amounts: 42 chars (4 x 12/9-char amounts)
+      - DE120 geo coordinates: LLLCHAR TLV, mandatory on every request
 -->
 <isopackager>
 
@@ -145,11 +148,14 @@
   <!-- 050 Currency code, settlement -->
   <isofield id="50" length="3" name="CURRENCY CODE, SETTLEMENT" class="org.jpos.iso.IFA_NUMERIC"/>
 
-  <!-- 052 PIN data: Hex16 (8 binary bytes) -->
-  <isofield id="52" length="8" name="PIN DATA" class="org.jpos.iso.IFA_BINARY"/>
+  <!-- 052 PIN data: Hex16, 16 ASCII hex characters representing the 8-byte
+       encrypted PIN block. Use IF_CHAR, not IFA_BINARY: the CTMS wire format
+       is ASCII hex, not raw bytes. -->
+  <isofield id="52" length="16" name="PIN DATA" class="org.jpos.iso.IF_CHAR"/>
 
-  <!-- 053 Security related control information: Hex96 (48 binary bytes) -->
-  <isofield id="53" length="48" name="SECURITY RELATED CONTROL INFORMATION" class="org.jpos.iso.IFA_BINARY"/>
+  <!-- 053 Security related control information: Hex96, 96 ASCII hex characters
+       (48 bytes). ASCII hex for the same reason as DE52. -->
+  <isofield id="53" length="96" name="SECURITY RELATED CONTROL INFORMATION" class="org.jpos.iso.IF_CHAR"/>
 
   <!-- 054 Additional amounts (LLLVAR an..120) -->
   <isofield id="54" length="120" name="ADDITIONAL AMOUNTS" class="org.jpos.iso.IFA_LLLCHAR"/>
@@ -201,6 +207,10 @@
 
   <!-- 103 Account identification 2 -->
   <isofield id="103" length="28" name="ACCOUNT IDENTIFICATION 2" class="org.jpos.iso.IFA_LLNUM"/>
+
+  <!-- 120 POS geo coordinates: LLLCHAR TLV (01 + lat, 02 + lon).
+       Mandatory on every request and reversal per CTMS v1.0.2. -->
+  <isofield id="120" length="999" name="POS GEO COORDINATES" class="org.jpos.iso.IFA_LLLCHAR"/>
 
   <!-- 123 POS data code (LLLVAR an15) -->
   <isofield id="123" length="15" name="POS DATA CODE" class="org.jpos.iso.IFA_LLLCHAR"/>

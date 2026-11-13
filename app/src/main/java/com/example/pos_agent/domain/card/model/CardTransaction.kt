@@ -23,6 +23,12 @@ data class CardTransaction(
     val responseCode: ResponseCode? = null,
     val originalTransactionId: TransactionId? = null,
     val maskedPan: MaskedPan? = null,
+    /** MTI actually sent to the host, needed to rebuild DE90 for a reversal. */
+    val hostMti: String? = null,
+    /** DE7 transmission date/time sent to the host, needed for DE90. */
+    val transmissionDateTime: String? = null,
+    val acquirerId: String? = null,
+    val forwardingId: String? = null,
     val updatedAtEpochMillis: Long = createdAtEpochMillis,
 ) {
     fun approve(

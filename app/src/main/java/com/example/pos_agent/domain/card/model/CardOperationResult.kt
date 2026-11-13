@@ -8,4 +8,5 @@ data class CardOperationResult(
     val message: String,
     val rrn: Rrn? = null,
     val authCode: String? = null,
+    val emvHostResponse: EmvHostResponse? = null,
 )

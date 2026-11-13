@@ -45,8 +45,8 @@ fun AppRoot(
 
     LaunchedEffect(uiState.authState, session) {
         val authState = uiState.authState ?: return@LaunchedEffect
-        when {
-            authState == AppAuthState.AUTHENTICATED && session != null -> {
+        when (authState) {
+            AppAuthState.AUTHENTICATED -> {
                 if (!navController.isInGraph(AppRoute.MainGraph::class)) {
                     navController.navigate(AppRoute.MainGraph) {
                         popUpTo(navController.graph.id) { inclusive = true }
@@ -54,8 +54,7 @@ fun AppRoot(
                     }
                 }
             }
-
-            authState == AppAuthState.UNAUTHENTICATED && session == null -> {
+            AppAuthState.UNAUTHENTICATED -> {
                 if (!navController.isInGraph(AppRoute.AuthGraph::class)) {
                     navController.navigate(AppRoute.AuthGraph) {
                         popUpTo(navController.graph.id) { inclusive = true }

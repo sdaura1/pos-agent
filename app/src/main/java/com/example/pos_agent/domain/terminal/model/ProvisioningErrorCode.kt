@@ -1,0 +1,13 @@
+package com.example.pos_agent.domain.terminal.model
+
+/** Stable identifiers the UI maps to localized strings. */
+object ProvisioningErrorCode {
+    const val SERVICE_UNAVAILABLE = "TERMINAL_SERVICE_UNAVAILABLE"
+    const val VERSION_MISMATCH = "TERMINAL_VERSION_MISMATCH"
+    const val PERMISSION_DENIED = "TERMINAL_PERMISSION_DENIED"
+    const val KEY_DOWNLOAD_FAILED = "TERMINAL_KEY_DOWNLOAD_FAILED"
+    const val PARAMETER_DOWNLOAD_FAILED = "TERMINAL_PARAMETER_DOWNLOAD_FAILED"
+    const val HASH_NOT_CONFIGURED = "TERMINAL_HASH_NOT_CONFIGURED"
+    const val UNSUPPORTED_DEVICE = "TERMINAL_UNSUPPORTED_DEVICE"
+    const val UNKNOWN = "TERMINAL_PROVISIONING_UNKNOWN"
+}

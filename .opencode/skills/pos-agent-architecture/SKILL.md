@@ -91,6 +91,10 @@ core/
 
 ## 3. Naming convention
 
+Word choice, acronym expansion, state-vs-result naming, exception naming and the
+mechanical rename checklist live in the `pos-agent-naming` skill. This section
+covers the role suffixes that the folder layout depends on.
+
 Append the role so the file type is obvious from the name.
 
 | Kind | Suffix | Example |
