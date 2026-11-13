@@ -1,59 +1,104 @@
 package com.example.pos_agent.domain.card.model
 
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class CardCaptureTest {
 
     @Test
-    fun `accepts a fully populated capture`() {
+    fun `CardCapture should accept a populated capture when constructed`() {
+        // Arrange
         val capture = capture()
 
-        assertTrue(capture.maskedPan.value.startsWith("5061"))
-        assertTrue(capture.emvData != null)
+        // Act
+        val maskedPan = capture.maskedPan.value
+        val emvData = capture.emvData
+
+        // Assert
+        assertTrue(maskedPan.startsWith("5061"))
+        assertTrue(emvData != null)
     }
 
     @Test
-    fun `rejects a card token that contains a readable pan`() {
-        assertThrows(IllegalArgumentException::class.java) {
-            capture(cardToken = CardToken("4111111111111111"))
-        }
+    fun `CardCapture should reject a PAN in the token when constructed`() {
+        // Arrange
+        val pan = "4111111111111111"
+
+        // Act
+        val failure = runCatching {
+            capture(cardToken = CardToken(pan))
+        }.exceptionOrNull()
+
+        // Assert
+        assertTrue(failure is IllegalArgumentException)
     }
 
     @Test
-    fun `rejects a card serial that contains a readable pan`() {
-        assertThrows(IllegalArgumentException::class.java) {
-            capture(cardSerial = "4111111111111111")
-        }
+    fun `CardCapture should reject a PAN in the serial when constructed`() {
+        // Arrange
+        val pan = "4111111111111111"
+
+        // Act
+        val failure = runCatching {
+            capture(cardSerial = pan)
+        }.exceptionOrNull()
+
+        // Assert
+        assertTrue(failure is IllegalArgumentException)
     }
 
     @Test
-    fun `rejects an application label that contains a readable pan`() {
-        assertThrows(IllegalArgumentException::class.java) {
-            capture(applicationLabel = "4111111111111111")
-        }
+    fun `CardCapture should reject a PAN in the label when constructed`() {
+        // Arrange
+        val pan = "4111111111111111"
+
+        // Act
+        val failure = runCatching {
+            capture(applicationLabel = pan)
+        }.exceptionOrNull()
+
+        // Assert
+        assertTrue(failure is IllegalArgumentException)
     }
 
     @Test
-    fun `rejects an invalid aid`() {
-        assertThrows(IllegalArgumentException::class.java) {
-            capture(aid = "A0000000") // 4 bytes is below the AID minimum
-        }
+    fun `CardCapture should reject a short AID when constructed`() {
+        // Arrange
+        val shortAid = "A0000000"
+
+        // Act
+        val failure = runCatching {
+            capture(aid = shortAid)
+        }.exceptionOrNull()
+
+        // Assert
+        assertTrue(failure is IllegalArgumentException)
     }
 
     @Test
-    fun `rejects an invalid service code`() {
-        assertThrows(IllegalArgumentException::class.java) {
-            capture(serviceCode = "20A")
-        }
+    fun `CardCapture should reject a non-numeric service code when built`() {
+        // Arrange
+        val invalidCode = "20A"
+
+        // Act
+        val failure = runCatching {
+            capture(serviceCode = invalidCode)
+        }.exceptionOrNull()
+
+        // Assert
+        assertTrue(failure is IllegalArgumentException)
     }
 
     @Test
-    fun `redacts sensitive fields from toString`() {
-        val text = capture().toString()
+    fun `CardCapture should redact sensitive fields when converted to text`() {
+        // Arrange
+        val capture = capture()
 
+        // Act
+        val text = capture.toString()
+
+        // Assert
         assertFalse(text.contains("ENCRYPTED-TOKEN"))
         assertFalse(text.contains("0123456789ABCDEF"))
         assertFalse(text.contains("9F2608AABBCCDDEEFF0011"))

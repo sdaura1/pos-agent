@@ -15,62 +15,88 @@ import org.junit.Test
 class EnsureTerminalProvisionedUseCaseTest {
 
     @Test
-    fun `provisioned terminal returns success`() = runBlocking {
+    fun `an already provisioned terminal should return success when checked`() = runBlocking {
+        // Arrange
         val provisioning = FakeTerminalProvisioning()
+        val useCase = EnsureTerminalProvisionedUseCase(provisioning)
 
-        val result = EnsureTerminalProvisionedUseCase(provisioning)()
+        // Act
+        val result = useCase()
 
+        // Assert
         assertTrue(result is Response.Success)
     }
 
     @Test
-    fun `missing service exposes a stable code`() = runBlocking {
+    fun `the use case should expose a stable code when the service is missing`() = runBlocking {
+        // Arrange
         val provisioning = FakeTerminalProvisioning(
-            outcome = ProvisioningResult.Failure(ProvisioningFailureReason.SERVICE_UNAVAILABLE),
+            outcome = ProvisioningResult.Failure(
+                ProvisioningFailureReason.SERVICE_UNAVAILABLE,
+            ),
         )
+        val useCase = EnsureTerminalProvisionedUseCase(provisioning)
 
-        val result = EnsureTerminalProvisionedUseCase(provisioning)()
+        // Act
+        val result = useCase()
 
+        // Assert
         val failure = result as Response.Failure
         assertEquals(ProvisioningErrorCode.SERVICE_UNAVAILABLE, failure.error.code)
         assertTrue(failure.error is DomainError.Unknown)
     }
 
     @Test
-    fun `version mismatch is a conflict`() = runBlocking {
+    fun `the use case should return a conflict when the version mismatches`() = runBlocking {
+        // Arrange
         val provisioning = FakeTerminalProvisioning(
-            outcome = ProvisioningResult.Failure(ProvisioningFailureReason.VERSION_MISMATCH),
+            outcome = ProvisioningResult.Failure(
+                ProvisioningFailureReason.VERSION_MISMATCH,
+            ),
         )
+        val useCase = EnsureTerminalProvisionedUseCase(provisioning)
 
-        val result = EnsureTerminalProvisionedUseCase(provisioning)()
+        // Act
+        val result = useCase()
 
+        // Assert
         val failure = result as Response.Failure
         assertEquals(ProvisioningErrorCode.VERSION_MISMATCH, failure.error.code)
         assertTrue(failure.error is DomainError.Conflict)
     }
 
     @Test
-    fun `download failures are network errors`() = runBlocking {
+    fun `the use case should return a network error when key download fails`() = runBlocking {
+        // Arrange
         val provisioning = FakeTerminalProvisioning(
-            outcome = ProvisioningResult.Failure(ProvisioningFailureReason.KEY_DOWNLOAD_FAILED),
+            outcome = ProvisioningResult.Failure(
+                ProvisioningFailureReason.KEY_DOWNLOAD_FAILED,
+            ),
         )
+        val useCase = EnsureTerminalProvisionedUseCase(provisioning)
 
-        val result = EnsureTerminalProvisionedUseCase(provisioning)()
+        // Act
+        val result = useCase()
 
+        // Assert
         val failure = result as Response.Failure
         assertEquals(ProvisioningErrorCode.KEY_DOWNLOAD_FAILED, failure.error.code)
         assertTrue(failure.error is DomainError.Network)
     }
 
     @Test
-    fun `every failure reason maps to a non-empty code`() = runBlocking {
+    fun `the use case should return a code when any failure reason occurs`() = runBlocking {
         for (reason in ProvisioningFailureReason.entries) {
+            // Arrange
             val provisioning = FakeTerminalProvisioning(
                 outcome = ProvisioningResult.Failure(reason),
             )
+            val useCase = EnsureTerminalProvisionedUseCase(provisioning)
 
-            val result = EnsureTerminalProvisionedUseCase(provisioning)()
+            // Act
+            val result = useCase()
 
+            // Assert
             val failure = result as Response.Failure
             assertNotNull("Missing code for $reason", failure.error.code)
             assertTrue("Blank code for $reason", failure.error.code!!.isNotBlank())
@@ -78,16 +104,23 @@ class EnsureTerminalProvisionedUseCaseTest {
     }
 
     @Test
-    fun `detail is carried into the domain error message`() = runBlocking {
+    fun `the use case should carry detail into the message when provided`() = runBlocking {
+        // Arrange
         val provisioning = FakeTerminalProvisioning(
             outcome = ProvisioningResult.Failure(
                 ProvisioningFailureReason.KEY_DOWNLOAD_FAILED,
                 detail = "host rejected TMK",
             ),
         )
+        val useCase = EnsureTerminalProvisionedUseCase(provisioning)
 
-        val result = EnsureTerminalProvisionedUseCase(provisioning)()
+        // Act
+        val result = useCase()
 
-        assertEquals("host rejected TMK", (result as Response.Failure).error.message)
+        // Assert
+        assertEquals(
+            "host rejected TMK",
+            (result as Response.Failure).error.message,
+        )
     }
 }

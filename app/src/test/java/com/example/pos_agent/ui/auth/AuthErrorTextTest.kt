@@ -9,45 +9,68 @@ import org.junit.Test
 class AuthErrorTextTest {
 
     @Test
-    fun `invalid credentials maps to its string resource`() {
+    fun `an invalid credentials error should map to its resource when resolved`() {
+        // Arrange
         val error = DomainError.Validation(
             message = "",
             code = AuthErrorCode.INVALID_CREDENTIALS,
         )
 
-        assertEquals(R.string.auth_error_invalid_credentials, error.toMessageRes())
+        // Act
+        val resource = error.toMessageRes()
+
+        // Assert
+        assertEquals(R.string.auth_error_invalid_credentials, resource)
     }
 
     @Test
-    fun `network error maps to its string resource`() {
+    fun `a network error should map to its resource when resolved`() {
+        // Arrange
         val error = DomainError.Network(
             message = "",
             code = AuthErrorCode.NETWORK,
         )
 
-        assertEquals(R.string.auth_error_network, error.toMessageRes())
+        // Act
+        val resource = error.toMessageRes()
+
+        // Assert
+        assertEquals(R.string.auth_error_network, resource)
     }
 
     @Test
-    fun `unknown error maps to the generic resource`() {
+    fun `an unknown error should map to the generic resource when resolved`() {
+        // Arrange
         val error = DomainError.Unknown("")
 
-        assertEquals(R.string.auth_error_generic, error.toMessageRes())
+        // Act
+        val resource = error.toMessageRes()
+
+        // Assert
+        assertEquals(R.string.auth_error_generic, resource)
     }
 
     @Test
-    fun `username field error maps to its string resource`() {
-        assertEquals(
-            R.string.login_error_username_required,
-            LoginFieldError.USERNAME_REQUIRED.toMessageRes(),
-        )
+    fun `a username field error should map to its resource when resolved`() {
+        // Arrange
+        val error = LoginFieldError.USERNAME_REQUIRED
+
+        // Act
+        val resource = error.toMessageRes()
+
+        // Assert
+        assertEquals(R.string.login_error_username_required, resource)
     }
 
     @Test
-    fun `password field error maps to its string resource`() {
-        assertEquals(
-            R.string.login_error_password_required,
-            LoginFieldError.PASSWORD_REQUIRED.toMessageRes(),
-        )
+    fun `a password field error should map to its resource when resolved`() {
+        // Arrange
+        val error = LoginFieldError.PASSWORD_REQUIRED
+
+        // Act
+        val resource = error.toMessageRes()
+
+        // Assert
+        assertEquals(R.string.login_error_password_required, resource)
     }
 }

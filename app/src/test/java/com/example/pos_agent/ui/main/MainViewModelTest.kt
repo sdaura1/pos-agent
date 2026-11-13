@@ -37,81 +37,103 @@ class MainViewModelTest {
         Dispatchers.resetMain()
     }
 
+    @Test
+    fun `restore should authenticate when a session is stored`() =
+        runTest(mainDispatcher.scheduler) {
+            // Arrange
+            val session = FakeAuthRepository.session()
+            repository.restoreResult = Response.Success(session)
+
+            // Act
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+
+            // Assert
+            val state = viewModel.loadState.value
+            assertFalse(state.isLoading)
+            assertEquals(AppAuthState.AUTHENTICATED, state.authState)
+            assertEquals(session, viewModel.session.value)
+        }
+
+    @Test
+    fun `restore should go unauthenticated when no session is stored`() =
+        runTest(mainDispatcher.scheduler) {
+            // Arrange
+            repository.restoreResult = Response.Success(null)
+
+            // Act
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+
+            // Assert
+            val state = viewModel.loadState.value
+            assertFalse(state.isLoading)
+            assertEquals(AppAuthState.UNAUTHENTICATED, state.authState)
+            assertNull(viewModel.session.value)
+        }
+
+    @Test
+    fun `restore should go unauthenticated when the read fails`() =
+        runTest(mainDispatcher.scheduler) {
+            // Arrange
+            repository.restoreResult = Response.Failure(
+                DomainError.Unknown("read failed"),
+            )
+
+            // Act
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+
+            // Assert
+            val state = viewModel.loadState.value
+            assertFalse(state.isLoading)
+            assertEquals(AppAuthState.UNAUTHENTICATED, state.authState)
+            assertNull(viewModel.session.value)
+        }
+
+    @Test
+    fun `onAuthenticated should update state and session when signed in`() =
+        runTest(mainDispatcher.scheduler) {
+            // Arrange
+            repository.restoreResult = Response.Success(null)
+            val session = FakeAuthRepository.session()
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+
+            // Act
+            viewModel.onAuthenticated(session)
+
+            // Assert
+            val state = viewModel.loadState.value
+            assertFalse(state.isLoading)
+            assertEquals(AppAuthState.AUTHENTICATED, state.authState)
+            assertEquals(session, viewModel.session.value)
+        }
+
+    @Test
+    fun `logout should clear the session when requested`() =
+        runTest(mainDispatcher.scheduler) {
+            // Arrange
+            repository.restoreResult = Response.Success(
+                FakeAuthRepository.session(),
+            )
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+
+            // Act
+            viewModel.logout()
+            advanceUntilIdle()
+
+            // Assert
+            val state = viewModel.loadState.value
+            assertFalse(state.isLoading)
+            assertEquals(AppAuthState.UNAUTHENTICATED, state.authState)
+            assertNull(viewModel.session.value)
+            assertTrue(repository.logoutCalled)
+        }
+
     private fun createViewModel() = MainViewModel(
         restoreSessionUseCase = RestoreSessionUseCase(repository),
         logoutUseCase = LogoutUseCase(repository),
     )
-
-    @Test
-    fun `restores a persisted session`() = runTest(mainDispatcher.scheduler) {
-        val session = FakeAuthRepository.session()
-        repository.restoreResult = Response.Success(session)
-
-        val viewModel = createViewModel()
-        advanceUntilIdle()
-
-        val state = viewModel.loadState.value
-        assertFalse(state.isLoading)
-        assertEquals(AppAuthState.AUTHENTICATED, state.authState)
-        assertEquals(session, viewModel.session.value)
-    }
-
-    @Test
-    fun `no stored session goes to unauthenticated`() = runTest(mainDispatcher.scheduler) {
-        repository.restoreResult = Response.Success(null)
-
-        val viewModel = createViewModel()
-        advanceUntilIdle()
-
-        val state = viewModel.loadState.value
-        assertFalse(state.isLoading)
-        assertEquals(AppAuthState.UNAUTHENTICATED, state.authState)
-        assertNull(viewModel.session.value)
-    }
-
-    @Test
-    fun `restore failure goes to unauthenticated`() = runTest(mainDispatcher.scheduler) {
-        repository.restoreResult = Response.Failure(DomainError.Unknown("read failed"))
-
-        val viewModel = createViewModel()
-        advanceUntilIdle()
-
-        val state = viewModel.loadState.value
-        assertFalse(state.isLoading)
-        assertEquals(AppAuthState.UNAUTHENTICATED, state.authState)
-        assertNull(viewModel.session.value)
-    }
-
-    @Test
-    fun `authenticated user updates load state and session`() = runTest(mainDispatcher.scheduler) {
-        repository.restoreResult = Response.Success(null)
-        val session = FakeAuthRepository.session()
-
-        val viewModel = createViewModel()
-        advanceUntilIdle()
-
-        viewModel.onAuthenticated(session)
-
-        val state = viewModel.loadState.value
-        assertFalse(state.isLoading)
-        assertEquals(AppAuthState.AUTHENTICATED, state.authState)
-        assertEquals(session, viewModel.session.value)
-    }
-
-    @Test
-    fun `logout clears the session`() = runTest(mainDispatcher.scheduler) {
-        repository.restoreResult = Response.Success(FakeAuthRepository.session())
-
-        val viewModel = createViewModel()
-        advanceUntilIdle()
-
-        viewModel.logout()
-        advanceUntilIdle()
-
-        val state = viewModel.loadState.value
-        assertFalse(state.isLoading)
-        assertEquals(AppAuthState.UNAUTHENTICATED, state.authState)
-        assertNull(viewModel.session.value)
-        assertTrue(repository.logoutCalled)
-    }
 }

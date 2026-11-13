@@ -40,10 +40,16 @@ class LoginViewModelTest {
     }
 
     @Test
-    fun `missing fields produce field errors and skip the repository`() =
+    fun `submit should show field errors when the fields are blank`() =
         runTest(mainDispatcher.scheduler) {
+            // Arrange
+            viewModel.onUsernameChange("")
+            viewModel.onPasswordChange("")
+
+            // Act
             viewModel.submit()
 
+            // Assert
             val state = viewModel.state.value
             assertEquals(LoginFieldError.USERNAME_REQUIRED, state.usernameError)
             assertEquals(LoginFieldError.PASSWORD_REQUIRED, state.passwordError)
@@ -51,25 +57,32 @@ class LoginViewModelTest {
         }
 
     @Test
-    fun `editing a field clears its error`() = runTest(mainDispatcher.scheduler) {
-        viewModel.submit()
+    fun `editing a field should clear its error when changed`() =
+        runTest(mainDispatcher.scheduler) {
+            // Arrange
+            viewModel.submit()
 
-        viewModel.onUsernameChange("operator")
+            // Act
+            viewModel.onUsernameChange("operator")
 
-        assertNull(viewModel.state.value.usernameError)
-        assertEquals("operator", viewModel.state.value.username)
-    }
+            // Assert
+            assertNull(viewModel.state.value.usernameError)
+            assertEquals("operator", viewModel.state.value.username)
+        }
 
     @Test
-    fun `successful sign-in clears the form and stops loading`() =
+    fun `a successful sign-in should clear the form when submitted`() =
         runTest(mainDispatcher.scheduler) {
+            // Arrange
             repository.loginResult = Response.Success(FakeAuthRepository.session())
             viewModel.onUsernameChange("operator")
             viewModel.onPasswordChange("secret")
 
+            // Act
             viewModel.submit()
             advanceUntilIdle()
 
+            // Assert
             val state = viewModel.state.value
             assertFalse(state.isSubmitting)
             assertEquals("", state.username)
@@ -79,8 +92,9 @@ class LoginViewModelTest {
         }
 
     @Test
-    fun `failed sign-in shows the domain error and keeps the form filled`() =
+    fun `a failed sign-in should keep the form when submitted`() =
         runTest(mainDispatcher.scheduler) {
+            // Arrange
             repository.loginResult = Response.Failure(
                 DomainError.Validation(
                     message = "Invalid username or password.",
@@ -90,9 +104,11 @@ class LoginViewModelTest {
             viewModel.onUsernameChange("operator")
             viewModel.onPasswordChange("wrong")
 
+            // Act
             viewModel.submit()
             advanceUntilIdle()
 
+            // Assert
             val state = viewModel.state.value
             assertFalse(state.isSubmitting)
             assertEquals(AuthErrorCode.INVALID_CREDENTIALS, state.error?.code)
@@ -101,11 +117,15 @@ class LoginViewModelTest {
         }
 
     @Test
-    fun `password visibility toggles`() {
-        assertFalse(viewModel.state.value.isPasswordVisible)
+    fun `password visibility should toggle when requested`() {
+        // Arrange
+        val initiallyVisible = viewModel.state.value.isPasswordVisible
 
+        // Act
         viewModel.onTogglePasswordVisibility()
 
+        // Assert
+        assertFalse(initiallyVisible)
         assertTrue(viewModel.state.value.isPasswordVisible)
     }
 }

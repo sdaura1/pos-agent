@@ -8,25 +8,57 @@ import org.junit.Test
 class HexCodecTest {
 
     @Test
-    fun `encodes bytes as uppercase hex`() {
-        assertEquals("00FF10", HexCodec.encode(byteArrayOf(0, -1, 16)))
+    fun `encode should produce uppercase hex when given bytes`() {
+        // Arrange
+        val bytes = byteArrayOf(0, -1, 16)
+
+        // Act
+        val encoded = HexCodec.encode(bytes)
+
+        // Assert
+        assertEquals("00FF10", encoded)
     }
 
     @Test
-    fun `decodes valid hex regardless of case`() {
-        assertTrue(byteArrayOf(0x0A.toByte(), 0xBC.toByte()).contentEquals(HexCodec.decodeOrNull("0abc")!!))
-        assertTrue(byteArrayOf(0x0A.toByte(), 0xBC.toByte()).contentEquals(HexCodec.decodeOrNull("0ABC")!!))
+    fun `decodeOrNull should accept either case when the input is valid`() {
+        // Arrange
+        val expected = byteArrayOf(0x0A.toByte(), 0xBC.toByte())
+
+        // Act
+        val lower = HexCodec.decodeOrNull("0abc")
+        val upper = HexCodec.decodeOrNull("0ABC")
+
+        // Assert
+        assertTrue(expected.contentEquals(lower!!))
+        assertTrue(expected.contentEquals(upper!!))
     }
 
     @Test
-    fun `rejects odd length and non-hex input`() {
-        assertEquals(null, HexCodec.decodeOrNull("ABC"))
-        assertEquals(null, HexCodec.decodeOrNull("ZZ"))
+    fun `decodeOrNull should return null when the input is malformed`() {
+        // Arrange
+        val oddLength = "ABC"
+        val nonHex = "ZZ"
+
+        // Act
+        val oddResult = HexCodec.decodeOrNull(oddLength)
+        val nonHexResult = HexCodec.decodeOrNull(nonHex)
+
+        // Assert
+        assertEquals(null, oddResult)
+        assertEquals(null, nonHexResult)
     }
 
     @Test
-    fun `constant time comparison is case insensitive`() {
-        assertTrue(HexCodec.constantTimeEquals("00ff", "00FF"))
+    fun `constantTimeEquals should ignore case when the values match`() {
+        // Arrange
+        val lower = "00ff"
+        val upper = "00FF"
+
+        // Act
+        val equal = HexCodec.constantTimeEquals(lower, upper)
+
+        // Assert
+        assertTrue(equal)
         assertFalse(HexCodec.constantTimeEquals("00ff", "00fe"))
         assertFalse(HexCodec.constantTimeEquals("00ff", "not-hex"))
     }

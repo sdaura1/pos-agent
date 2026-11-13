@@ -7,7 +7,8 @@ import org.junit.Test
 class CardCaptureErrorCodeTest {
 
     @Test
-    fun `all capture codes are non-blank and unique`() {
+    fun `capture codes should be non-blank and unique when listed`() {
+        // Arrange
         val codes = listOf(
             CardCaptureErrorCode.TIMEOUT,
             CardCaptureErrorCode.CANCELLED,
@@ -20,7 +21,12 @@ class CardCaptureErrorCodeTest {
             CardCaptureErrorCode.UNRECONCILED,
         )
 
-        assertTrue(codes.all { it.isNotBlank() })
-        assertEquals(codes.size, codes.toSet().size)
+        // Act
+        val allNonBlank = codes.all { it.isNotBlank() }
+        val uniqueCount = codes.toSet().size
+
+        // Assert
+        assertTrue(allNonBlank)
+        assertEquals(codes.size, uniqueCount)
     }
 }

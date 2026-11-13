@@ -1,17 +1,20 @@
 package com.example.pos_agent
 
+import org.junit.Assert.assertEquals
 import org.junit.Test
 
-import org.junit.Assert.*
-
-/**
- * Example local unit test, which will execute on the development machine (host).
- *
- * See [testing documentation](http://d.android.com/tools/testing).
- */
 class ExampleUnitTest {
+
     @Test
-    fun addition_isCorrect() {
-        assertEquals(4, 2 + 2)
+    fun `addition should return four when adding two and two`() {
+        // Arrange
+        val left = 2
+        val right = 2
+
+        // Act
+        val sum = left + right
+
+        // Assert
+        assertEquals(4, sum)
     }
 }

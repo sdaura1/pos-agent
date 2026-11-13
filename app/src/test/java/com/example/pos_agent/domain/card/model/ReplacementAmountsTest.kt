@@ -2,44 +2,68 @@ package com.example.pos_agent.domain.card.model
 
 import com.example.pos_agent.domain.shared.Money
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertThrows
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class ReplacementAmountsTest {
 
     @Test
-    fun `accepts a zero replacement for a full reversal`() {
-        val amounts = ReplacementAmounts(transactionAmount = Money.zero())
+    fun `ReplacementAmounts should accept zero when built for a full reversal`() {
+        // Arrange
+        val zero = Money.zero()
 
+        // Act
+        val amounts = ReplacementAmounts(transactionAmount = zero)
+
+        // Assert
         assertEquals(0L, amounts.transactionAmount.minorUnits)
     }
 
     @Test
-    fun `accepts corrected amounts and fees`() {
+    fun `ReplacementAmounts should accept corrected amounts when built`() {
+        // Arrange
+        val amount = Money.of(1_000)
+
+        // Act
         val amounts = ReplacementAmounts(
-            transactionAmount = Money.of(1_000),
-            settlementAmount = Money.of(1_000),
+            transactionAmount = amount,
+            settlementAmount = amount,
             transactionFee = Money.zero(),
             settlementFee = Money.zero(),
         )
 
+        // Assert
         assertEquals(1_000L, amounts.transactionAmount.minorUnits)
     }
 
     @Test
-    fun `rejects a negative transaction amount`() {
-        assertThrows(IllegalArgumentException::class.java) {
-            ReplacementAmounts(transactionAmount = Money.of(-1))
-        }
+    fun `ReplacementAmounts should reject a negative amount when built`() {
+        // Arrange
+        val negative = Money.of(-1)
+
+        // Act
+        val failure = runCatching {
+            ReplacementAmounts(transactionAmount = negative)
+        }.exceptionOrNull()
+
+        // Assert
+        assertTrue(failure is IllegalArgumentException)
     }
 
     @Test
-    fun `rejects a negative fee`() {
-        assertThrows(IllegalArgumentException::class.java) {
+    fun `ReplacementAmounts should reject a negative fee when built`() {
+        // Arrange
+        val negativeFee = Money.of(-1)
+
+        // Act
+        val failure = runCatching {
             ReplacementAmounts(
                 transactionAmount = Money.zero(),
-                transactionFee = Money.of(-1),
+                transactionFee = negativeFee,
             )
-        }
+        }.exceptionOrNull()
+
+        // Assert
+        assertTrue(failure is IllegalArgumentException)
     }
 }

@@ -1,34 +1,71 @@
 package com.example.pos_agent.domain.card.model
 
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertThrows
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class EmvDataTest {
 
     @Test
-    fun `accepts uppercase and lowercase hex`() {
-        assertEquals("9F2608AABB", EmvData("9F2608AABB").value)
-        assertEquals("9f2608aabb", EmvData("9f2608aabb").value)
+    fun `EmvData should accept upper and lower case hex when constructed`() {
+        // Arrange
+        val upper = "9F2608AABB"
+        val lower = "9f2608aabb"
+
+        // Act
+        val first = EmvData(upper)
+        val second = EmvData(lower)
+
+        // Assert
+        assertEquals(upper, first.value)
+        assertEquals(lower, second.value)
     }
 
     @Test
-    fun `rejects an odd number of hex characters`() {
-        assertThrows(IllegalArgumentException::class.java) { EmvData("9F2608AAB") }
+    fun `EmvData should reject an odd number of digits when constructed`() {
+        // Arrange
+        val oddHex = "9F2608AAB"
+
+        // Act
+        val failure = runCatching { EmvData(oddHex) }.exceptionOrNull()
+
+        // Assert
+        assertTrue(failure is IllegalArgumentException)
     }
 
     @Test
-    fun `rejects non-hex characters`() {
-        assertThrows(IllegalArgumentException::class.java) { EmvData("9F26GG") }
+    fun `EmvData should reject non-hex characters when constructed`() {
+        // Arrange
+        val invalid = "9F26GG"
+
+        // Act
+        val failure = runCatching { EmvData(invalid) }.exceptionOrNull()
+
+        // Assert
+        assertTrue(failure is IllegalArgumentException)
     }
 
     @Test
-    fun `rejects an empty value`() {
-        assertThrows(IllegalArgumentException::class.java) { EmvData("") }
+    fun `EmvData should reject an empty value when constructed`() {
+        // Arrange
+        val empty = ""
+
+        // Act
+        val failure = runCatching { EmvData(empty) }.exceptionOrNull()
+
+        // Assert
+        assertTrue(failure is IllegalArgumentException)
     }
 
     @Test
-    fun `redacts the value from toString`() {
-        assertEquals("EmvData(***)", EmvData("9F2608AABB").toString())
+    fun `EmvData should redact its value when converted to text`() {
+        // Arrange
+        val data = EmvData("9F2608AABB")
+
+        // Act
+        val text = data.toString()
+
+        // Assert
+        assertEquals("EmvData(***)", text)
     }
 }

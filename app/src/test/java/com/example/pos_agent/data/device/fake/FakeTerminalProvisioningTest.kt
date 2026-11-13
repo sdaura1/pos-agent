@@ -13,83 +13,121 @@ import org.junit.Test
 class FakeTerminalProvisioningTest {
 
     @Test
-    fun `starts provisioned by default without performing an attempt`() = runTest {
+    fun `a default fake should start provisioned when created`() = runTest {
+        // Arrange
         val fake = FakeTerminalProvisioning()
 
+        // Act
+        val result = fake.ensureProvisioned()
+
+        // Assert
         assertEquals(ProvisioningState.Provisioned, fake.state.value)
-        assertEquals(ProvisioningResult.Success, fake.ensureProvisioned())
+        assertEquals(ProvisioningResult.Success, result)
         assertEquals(0, fake.attempts)
     }
 
     @Test
-    fun `unprovisioned terminal reaches provisioned once`() = runTest {
-        val fake = FakeTerminalProvisioning(initial = ProvisioningState.Unprovisioned)
+    fun `an unprovisioned fake should reach provisioned when asked`() = runTest {
+        // Arrange
+        val fake = FakeTerminalProvisioning(
+            initial = ProvisioningState.Unprovisioned,
+        )
 
-        assertEquals(ProvisioningResult.Success, fake.ensureProvisioned())
+        // Act
+        val result = fake.ensureProvisioned()
+
+        // Assert
+        assertEquals(ProvisioningResult.Success, result)
         assertEquals(ProvisioningState.Provisioned, fake.state.value)
         assertEquals(1, fake.attempts)
     }
 
     @Test
-    fun `ensureProvisioned is idempotent once provisioned`() = runTest {
-        val fake = FakeTerminalProvisioning(initial = ProvisioningState.Unprovisioned)
+    fun `ensureProvisioned should be idempotent when already provisioned`() = runTest {
+        // Arrange
+        val fake = FakeTerminalProvisioning(
+            initial = ProvisioningState.Unprovisioned,
+        )
 
+        // Act
         fake.ensureProvisioned()
         fake.ensureProvisioned()
         fake.ensureProvisioned()
 
+        // Assert
         assertEquals(1, fake.attempts)
     }
 
     @Test
-    fun `refresh always performs a new attempt`() = runTest {
-        val fake = FakeTerminalProvisioning(initial = ProvisioningState.Unprovisioned)
-
+    fun `reprovision should start a new attempt when already provisioned`() = runTest {
+        // Arrange
+        val fake = FakeTerminalProvisioning(
+            initial = ProvisioningState.Unprovisioned,
+        )
         fake.ensureProvisioned()
+
+        // Act
         fake.reprovision()
 
+        // Assert
         assertEquals(2, fake.attempts)
         assertEquals(ProvisioningState.Provisioned, fake.state.value)
     }
 
     @Test
-    fun `failure leaves the terminal failed`() = runTest {
-        val outcome = ProvisioningResult.Failure(
+    fun `a failed attempt should leave the terminal failed when rejected`() = runTest {
+        // Arrange
+        val failure = ProvisioningResult.Failure(
             ProvisioningFailureReason.KEY_DOWNLOAD_FAILED,
             detail = "host rejected TMK",
         )
-        val fake = FakeTerminalProvisioning(outcome = outcome)
+        val fake = FakeTerminalProvisioning(outcome = failure)
 
+        // Act
         val result = fake.ensureProvisioned()
 
-        assertEquals(outcome, result)
+        // Assert
+        assertEquals(failure, result)
         assertEquals(
-            ProvisioningState.Failed(ProvisioningFailureReason.KEY_DOWNLOAD_FAILED, "host rejected TMK"),
+            ProvisioningState.Failed(
+                ProvisioningFailureReason.KEY_DOWNLOAD_FAILED,
+                "host rejected TMK",
+            ),
             fake.state.value,
         )
     }
 
     @Test
-    fun `a failed terminal can retry`() = runTest {
+    fun `a failed terminal should retry when ensureProvisioned runs again`() = runTest {
+        // Arrange
         val fake = FakeTerminalProvisioning(
-            outcome = ProvisioningResult.Failure(ProvisioningFailureReason.KEY_DOWNLOAD_FAILED),
+            outcome = ProvisioningResult.Failure(
+                ProvisioningFailureReason.KEY_DOWNLOAD_FAILED,
+            ),
         )
-
-        fake.ensureProvisioned()
         fake.ensureProvisioned()
 
+        // Act
+        fake.ensureProvisioned()
+
+        // Assert
         assertEquals(2, fake.attempts)
     }
 
     @Test
-    fun `concurrent callers share a single attempt`() = runTest {
-        val fake = FakeTerminalProvisioning(initial = ProvisioningState.Unprovisioned)
+    fun `concurrent callers should share one attempt when they call together`() = runTest {
+        // Arrange
+        val fake = FakeTerminalProvisioning(
+            initial = ProvisioningState.Unprovisioned,
+        )
 
+        // Act
         val results = listOf(
             async { fake.ensureProvisioned() },
             async { fake.ensureProvisioned() },
         ).awaitAll()
 
+        // Assert
         assertTrue(results.all { it == ProvisioningResult.Success })
         assertEquals(1, fake.attempts)
     }

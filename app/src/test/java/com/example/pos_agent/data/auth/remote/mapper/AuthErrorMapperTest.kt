@@ -11,35 +11,51 @@ import retrofit2.Response
 class AuthErrorMapperTest {
 
     @Test
-    fun `401 maps to invalid credentials`() {
-        assertEquals(
-            AuthErrorCode.INVALID_CREDENTIALS,
-            AuthErrorMapper.fromHttp(httpException(401)).code,
-        )
+    fun `401 should map to invalid credentials when authentication fails`() {
+        // Arrange
+        val exception = httpException(401)
+
+        // Act
+        val error = AuthErrorMapper.fromHttp(exception)
+
+        // Assert
+        assertEquals(AuthErrorCode.INVALID_CREDENTIALS, error.code)
     }
 
     @Test
-    fun `423 maps to account locked`() {
-        assertEquals(
-            AuthErrorCode.ACCOUNT_LOCKED,
-            AuthErrorMapper.fromHttp(httpException(423)).code,
-        )
+    fun `423 should map to account locked when the account is locked`() {
+        // Arrange
+        val exception = httpException(423)
+
+        // Act
+        val error = AuthErrorMapper.fromHttp(exception)
+
+        // Assert
+        assertEquals(AuthErrorCode.ACCOUNT_LOCKED, error.code)
     }
 
     @Test
-    fun `429 maps to too many attempts`() {
-        assertEquals(
-            AuthErrorCode.TOO_MANY_ATTEMPTS,
-            AuthErrorMapper.fromHttp(httpException(429)).code,
-        )
+    fun `429 should map to too many attempts when the host rate limits`() {
+        // Arrange
+        val exception = httpException(429)
+
+        // Act
+        val error = AuthErrorMapper.fromHttp(exception)
+
+        // Assert
+        assertEquals(AuthErrorCode.TOO_MANY_ATTEMPTS, error.code)
     }
 
     @Test
-    fun `other statuses map to server error`() {
-        assertEquals(
-            AuthErrorCode.SERVER,
-            AuthErrorMapper.fromHttp(httpException(500)).code,
-        )
+    fun `other statuses should map to server error when the host fails`() {
+        // Arrange
+        val exception = httpException(500)
+
+        // Act
+        val error = AuthErrorMapper.fromHttp(exception)
+
+        // Assert
+        assertEquals(AuthErrorCode.SERVER, error.code)
     }
 
     private fun httpException(status: Int): HttpException = HttpException(

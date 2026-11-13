@@ -48,7 +48,8 @@ cryptogram data, KSN and a PIN block reference, and the host needs them.
 
 - [x] Add `CardEntryMode` enum: `CONTACT`, `CONTACTLESS`, `MAGSTRIPE`,
       `FALLBACK_MAGSTRIPE`.
-- [x] Add `CardholderVerificationMethod` enum: `ONLINE_PIN`, `SIGNATURE`, `NO_CVM`, `UNKNOWN`.
+- [x] Add `CardholderVerificationMethod` enum: `ONLINE_PIN`, `OFFLINE_PIN`,
+      `UNKNOWN`.
 - [x] Add `EmvData` value object with hex validation and a redacted `toString`.
 - [x] Add `PinBlockRef` value object: encrypted block, KSN and key id, no raw
       PIN.
@@ -108,7 +109,7 @@ The host interface requires values that the previous model did not have. See
 | --- | --- |
 | Add | `domain/card/model/CardCapture.kt` |
 | Add | `domain/card/model/CardEntryMode.kt` |
-| Add | `domain/card/model/Cvm.kt` |
+| Add | `domain/card/model/CardholderVerificationMethod.kt` |
 | Add | `domain/card/model/EmvData.kt` |
 | Add | `domain/card/model/EmvHostResponse.kt` |
 | Add | `domain/card/model/PinBlockRef.kt` |

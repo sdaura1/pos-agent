@@ -8,83 +8,127 @@ import java.io.InputStream
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
-import org.junit.Assert.assertThrows
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class MessageFramingTest {
 
     @Test
-    fun `prefixes the payload with a big-endian two-byte length`() {
-        val framed = MessageFraming.frame("ISO".toByteArray())
+    fun `frame should prefix a two-byte length when given a payload`() {
+        // Arrange
+        val payload = "ISO".toByteArray()
 
+        // Act
+        val framed = MessageFraming.frame(payload)
+
+        // Assert
         assertEquals(0, framed[0].toInt())
         assertEquals(3, framed[1].toInt())
-        assertArrayEquals("ISO".toByteArray(), framed.copyOfRange(2, framed.size))
+        assertArrayEquals(payload, framed.copyOfRange(2, framed.size))
     }
 
     @Test
-    fun `round trips a payload larger than 255 bytes`() {
+    fun `read should round trip a large payload when framed`() {
+        // Arrange
         val payload = ByteArray(300) { (it % 26 + 'A'.code).toByte() }
-
         val framed = MessageFraming.frame(payload)
+
+        // Act
         val decoded = MessageFraming.read(ByteArrayInputStream(framed))
 
+        // Assert
         assertArrayEquals(payload, decoded)
     }
 
     @Test
-    fun `reads correctly when the stream returns one byte at a time`() {
+    fun `read should handle a trickling stream when bytes arrive one by one`() {
+        // Arrange
         val payload = "08002238000000800005".toByteArray()
         val framed = MessageFraming.frame(payload)
         val trickle = object : InputStream() {
             private var index = 0
+
             override fun read(): Int =
                 if (index < framed.size) framed[index++].toInt() and 0xFF else -1
         }
 
-        assertArrayEquals(payload, MessageFraming.read(trickle))
+        // Act
+        val decoded = MessageFraming.read(trickle)
+
+        // Assert
+        assertArrayEquals(payload, decoded)
     }
 
     @Test
-    fun `returns null on a clean end of stream`() {
-        assertNull(MessageFraming.read(ByteArrayInputStream(ByteArray(0))))
+    fun `read should return null when the stream is cleanly closed`() {
+        // Arrange
+        val input = ByteArrayInputStream(ByteArray(0))
+
+        // Act
+        val decoded = MessageFraming.read(input)
+
+        // Assert
+        assertNull(decoded)
     }
 
     @Test
-    fun `rejects a truncated length header`() {
-        assertThrows(EOFException::class.java) {
-            MessageFraming.read(ByteArrayInputStream(byteArrayOf(0)))
-        }
+    fun `read should reject a truncated header when one byte is available`() {
+        // Arrange
+        val input = ByteArrayInputStream(byteArrayOf(0))
+
+        // Act
+        val failure = runCatching { MessageFraming.read(input) }.exceptionOrNull()
+
+        // Assert
+        assertTrue(failure is EOFException)
     }
 
     @Test
-    fun `rejects a truncated payload`() {
-        assertThrows(EOFException::class.java) {
-            MessageFraming.read(ByteArrayInputStream(byteArrayOf(0, 5, 1, 2)))
-        }
+    fun `read should reject a truncated payload when bytes are missing`() {
+        // Arrange
+        val input = ByteArrayInputStream(byteArrayOf(0, 5, 1, 2))
+
+        // Act
+        val failure = runCatching { MessageFraming.read(input) }.exceptionOrNull()
+
+        // Assert
+        assertTrue(failure is EOFException)
     }
 
     @Test
-    fun `rejects an empty frame`() {
-        assertThrows(IOException::class.java) {
-            MessageFraming.read(ByteArrayInputStream(byteArrayOf(0, 0)))
-        }
+    fun `read should reject an empty frame when the length is zero`() {
+        // Arrange
+        val input = ByteArrayInputStream(byteArrayOf(0, 0))
+
+        // Act
+        val failure = runCatching { MessageFraming.read(input) }.exceptionOrNull()
+
+        // Assert
+        assertTrue(failure is IOException)
     }
 
     @Test
-    fun `rejects a payload larger than the length header can express`() {
-        assertThrows(IllegalArgumentException::class.java) {
-            MessageFraming.frame(ByteArray(MessageFraming.MAX_FRAME_LENGTH + 1))
-        }
+    fun `frame should reject an oversized payload when it exceeds the limit`() {
+        // Arrange
+        val payload = ByteArray(MessageFraming.MAX_FRAME_LENGTH + 1)
+
+        // Act
+        val failure = runCatching { MessageFraming.frame(payload) }.exceptionOrNull()
+
+        // Assert
+        assertTrue(failure is IllegalArgumentException)
     }
 
     @Test
-    fun `write emits the same bytes as frame`() {
+    fun `write should emit the same bytes as frame when given a payload`() {
+        // Arrange
         val payload = "0800".toByteArray()
-        val out = ByteArrayOutputStream()
+        val output = ByteArrayOutputStream()
 
-        MessageFraming.write(out, payload)
+        // Act
+        MessageFraming.write(output, payload)
 
-        assertArrayEquals(MessageFraming.frame(payload), out.toByteArray())
+        // Assert
+        assertArrayEquals(MessageFraming.frame(payload), output.toByteArray())
     }
 }

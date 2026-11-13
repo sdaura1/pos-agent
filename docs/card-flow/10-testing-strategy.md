@@ -13,6 +13,17 @@ Related: [`04-ports-and-fakes.md`](04-ports-and-fakes.md), [`09-kozen-adapter.md
 - Card secrets are absent from fixtures except deliberately fake values that are
   structurally invalid as live data.
 
+## 1.1 Test style
+
+- Every test name follows
+  `` `<action> should <expected outcome> when <condition>` `` in backticks.
+- Every test body is split by `// Arrange`, `// Act`, `// Assert`, with a blank
+  line between the sections.
+- Every line, including the full `fun` declaration, is under 100 characters.
+- One behaviour per test; assertions appear only in the Assert section.
+- No sleeps, real time or network in unit tests.
+- The full convention lives in `.opencode/skills/pos-agent-testing/SKILL.md`.
+
 ## 2. Layers
 
 | Layer | Tooling | Covers |

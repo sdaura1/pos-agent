@@ -21,8 +21,9 @@ class NibssConnectionTest {
     private val codec = Iso8583Codec()
 
     @Test
-    fun `exchanges a request and correlates the response by STAN`() = runBlocking {
-        val server = ServerSocket(0, 1, InetAddress.getByName("127.0.0.1"))
+    fun `sendAndReceive should correlate a response when the host replies`() = runBlocking {
+        // Arrange
+        val server = ServerSocket(0, 1, loopback())
         val serverFailure = AtomicReference<Throwable?>(null)
         val serverThread = thread(isDaemon = true) {
             try {
@@ -34,11 +35,15 @@ class NibssConnectionTest {
                 serverFailure.set(failure)
             }
         }
-
         val connection = NibssConnection(config(server.localPort), codec)
-        try {
-            val response = withTimeout(5_000) { connection.sendAndReceive(networkRequest()) }
 
+        try {
+            // Act
+            val response = withTimeout(5_000) {
+                connection.sendAndReceive(networkRequest())
+            }
+
+            // Assert
             assertEquals("00", response.getString(39))
             assertEquals("000001", response.getString(11))
             assertNull(serverFailure.get())
@@ -50,8 +55,9 @@ class NibssConnectionTest {
     }
 
     @Test
-    fun `rejects a response with a different STAN`() = runBlocking {
-        val server = ServerSocket(0, 1, InetAddress.getByName("127.0.0.1"))
+    fun `sendAndReceive should reject a response when the STAN differs`() = runBlocking {
+        // Arrange
+        val server = ServerSocket(0, 1, loopback())
         val serverThread = thread(isDaemon = true) {
             server.accept().use { socket ->
                 codec.read(socket.getInputStream())
@@ -61,8 +67,9 @@ class NibssConnectionTest {
                 codec.write(socket.getOutputStream(), response)
             }
         }
-
         val connection = NibssConnection(config(server.localPort), codec)
+
+        // Act
         val failure = try {
             withTimeout(5_000) { connection.sendAndReceive(networkRequest()) }
             null
@@ -74,20 +81,26 @@ class NibssConnectionTest {
             serverThread.join(1_000)
         }
 
-        assertTrue("Expected a protocol failure, got $failure", failure is NibssExchangeException.ResponseMismatch)
+        // Assert
+        assertTrue(
+            "Expected a protocol failure, got $failure",
+            failure is NibssExchangeException.ResponseMismatch,
+        )
     }
 
     @Test
-    fun `a response that never arrives is unknown, not a safe failure`() = runBlocking {
-        val server = ServerSocket(0, 1, InetAddress.getByName("127.0.0.1"))
+    fun `sendAndReceive should report unknown when the host closes early`() = runBlocking {
+        // Arrange
+        val server = ServerSocket(0, 1, loopback())
         val serverThread = thread(isDaemon = true) {
             server.accept().use { socket ->
                 codec.read(socket.getInputStream())
                 // Close without responding.
             }
         }
-
         val connection = NibssConnection(config(server.localPort), codec)
+
+        // Act
         val failure = try {
             withTimeout(5_000) { connection.sendAndReceive(networkRequest()) }
             null
@@ -99,14 +112,23 @@ class NibssConnectionTest {
             serverThread.join(1_000)
         }
 
-        assertTrue("Expected an unknown outcome, got $failure", failure is NibssExchangeException.ResponseNotReceived)
+        // Assert
+        assertTrue(
+            "Expected an unknown outcome, got $failure",
+            failure is NibssExchangeException.ResponseNotReceived,
+        )
     }
 
     @Test
-    fun `a refused connection is a safe failure`() = runBlocking {
-        val port = ServerSocket(0, 1, InetAddress.getByName("127.0.0.1")).use { it.localPort }
-        val connection = NibssConnection(config(port, connectTimeoutMillis = 250), codec)
+    fun `sendAndReceive should report a safe failure when connect is refused`() = runBlocking {
+        // Arrange
+        val port = ServerSocket(0, 1, loopback()).use { it.localPort }
+        val connection = NibssConnection(
+            config(port, connectTimeoutMillis = 250),
+            codec,
+        )
 
+        // Act
         val failure = try {
             withTimeout(5_000) { connection.sendAndReceive(networkRequest()) }
             null
@@ -116,12 +138,17 @@ class NibssConnectionTest {
             connection.close()
         }
 
-        assertTrue("Expected a not-sent failure, got $failure", failure is NibssExchangeException.RequestNotSent)
+        // Assert
+        assertTrue(
+            "Expected a not-sent failure, got $failure",
+            failure is NibssExchangeException.RequestNotSent,
+        )
     }
 
     @Test
-    fun `retry recovers from a connection that never opened`() = runBlocking {
-        val server = ServerSocket(0, 1, InetAddress.getByName("127.0.0.1"))
+    fun `sendAndReceiveWithRetry should recover when the first connect fails`() = runBlocking {
+        // Arrange
+        val server = ServerSocket(0, 1, loopback())
         val serverThread = thread(isDaemon = true) {
             server.accept().use { socket ->
                 val request = codec.read(socket.getInputStream())
@@ -133,13 +160,19 @@ class NibssConnectionTest {
             config(server.localPort).copy(maxAttempts = 2),
             codec,
         ) { settings ->
-            if (attempts.incrementAndGet() == 1) throw ConnectException("transient refusal")
+            if (attempts.incrementAndGet() == 1) {
+                throw ConnectException("transient refusal")
+            }
             socketTo(settings)
         }
 
         try {
-            val response = withTimeout(5_000) { connection.sendAndReceiveWithRetry(networkRequest()) }
+            // Act
+            val response = withTimeout(5_000) {
+                connection.sendAndReceiveWithRetry(networkRequest())
+            }
 
+            // Assert
             assertEquals("00", response.getString(39))
             assertEquals(2, attempts.get())
         } finally {
@@ -150,8 +183,9 @@ class NibssConnectionTest {
     }
 
     @Test
-    fun `retry does not resend when the outcome is unknown`() = runBlocking {
-        val server = ServerSocket(0, 1, InetAddress.getByName("127.0.0.1"))
+    fun `sendAndReceiveWithRetry should not resend when outcome is unknown`() = runBlocking {
+        // Arrange
+        val server = ServerSocket(0, 1, loopback())
         val serverThread = thread(isDaemon = true) {
             server.accept().use { socket ->
                 codec.read(socket.getInputStream())
@@ -167,6 +201,7 @@ class NibssConnectionTest {
             socketTo(settings)
         }
 
+        // Act
         val failure = try {
             withTimeout(5_000) { connection.sendAndReceiveWithRetry(networkRequest()) }
             null
@@ -178,9 +213,15 @@ class NibssConnectionTest {
             serverThread.join(1_000)
         }
 
-        assertTrue("Expected an unknown outcome, got $failure", failure is NibssExchangeException.ResponseNotReceived)
+        // Assert
+        assertTrue(
+            "Expected an unknown outcome, got $failure",
+            failure is NibssExchangeException.ResponseNotReceived,
+        )
         assertEquals("An unknown outcome must never be resent", 1, connects.get())
     }
+
+    private fun loopback(): InetAddress = InetAddress.getByName("127.0.0.1")
 
     private fun socketTo(settings: NibssConnectionConfig): Socket = Socket().apply {
         connect(

@@ -14,10 +14,15 @@ import org.junit.Test
 class LoginUseCaseTest {
 
     @Test
-    fun `blank username is rejected before hitting the repository`() = runBlocking {
+    fun `login should reject a blank username when submitted`() = runBlocking {
+        // Arrange
         val repository = FakeAuthRepository()
-        val result = LoginUseCase(repository)("   ", "secret")
+        val useCase = LoginUseCase(repository)
 
+        // Act
+        val result = useCase("   ", "secret")
+
+        // Assert
         assertTrue(result is Response.Failure)
         assertTrue((result as Response.Failure).error is DomainError.Validation)
         assertEquals(AuthErrorCode.USERNAME_REQUIRED, result.error.code)
@@ -25,47 +30,67 @@ class LoginUseCaseTest {
     }
 
     @Test
-    fun `blank password is rejected before hitting the repository`() = runBlocking {
+    fun `login should reject a blank password when submitted`() = runBlocking {
+        // Arrange
         val repository = FakeAuthRepository()
-        val result = LoginUseCase(repository)("operator", "")
+        val useCase = LoginUseCase(repository)
 
+        // Act
+        val result = useCase("operator", "")
+
+        // Assert
         assertTrue(result is Response.Failure)
-        assertEquals(AuthErrorCode.PASSWORD_REQUIRED, (result as Response.Failure).error.code)
+        assertEquals(
+            AuthErrorCode.PASSWORD_REQUIRED,
+            (result as Response.Failure).error.code,
+        )
         assertNull(repository.lastCredentials)
     }
 
     @Test
-    fun `username is trimmed and credentials are forwarded`() = runBlocking {
+    fun `login should trim the username when credentials are forwarded`() = runBlocking {
+        // Arrange
         val repository = FakeAuthRepository()
         val expected = FakeAuthRepository.session()
         repository.loginResult = Response.Success(expected)
+        val useCase = LoginUseCase(repository)
 
-        val result = LoginUseCase(repository)("  operator  ", "secret")
+        // Act
+        val result = useCase("  operator  ", "secret")
 
+        // Assert
         when (result) {
             is Response.Success -> assertSame(expected, result.value)
-            is Response.Failure -> throw AssertionError("Expected success, got ${result.error.message}")
+            is Response.Failure -> throw AssertionError("Expected success, got $result")
         }
         assertEquals("operator", repository.lastCredentials?.username)
         assertEquals("secret", repository.lastCredentials?.password)
     }
 
     @Test
-    fun `password is passed through exactly as entered`() = runBlocking {
+    fun `login should pass the password unchanged when submitted`() = runBlocking {
+        // Arrange
         val repository = FakeAuthRepository()
+        val useCase = LoginUseCase(repository)
 
-        LoginUseCase(repository)("operator", "  spaced  ")
+        // Act
+        useCase("operator", "  spaced  ")
 
+        // Assert
         assertEquals("  spaced  ", repository.lastCredentials?.password)
     }
 
     @Test
-    fun `repository failure is propagated`() = runBlocking {
+    fun `login should propagate the repository error when authentication fails`() = runBlocking {
+        // Arrange
         val error = DomainError.Validation("Invalid username or password.")
         val repository = FakeAuthRepository(Response.Failure(error))
+        val useCase = LoginUseCase(repository)
 
-        val result = LoginUseCase(repository)("operator", "wrong")
+        // Act
+        val result = useCase("operator", "wrong")
 
+        // Assert
         assertSame(error, (result as Response.Failure).error)
     }
 }
