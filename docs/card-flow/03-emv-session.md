@@ -1,6 +1,6 @@
 # S1.2 — EMV Session State Machine
 
-Status: planned
+Status: implemented (65 EMV tests; full unit suite 220 passing)
 Slice: S1
 Depends on: [`02-domain-model.md`](02-domain-model.md)
 Effort: 3–4 developer-days
@@ -47,6 +47,12 @@ not live in the adapter.
 Only one state is active. The machine rejects transitions that are not in the
 declared table.
 
+Implementation note: a state is a dialogue **phase**, not a thread. After a
+prompt is answered the session stays in that phase with `pendingPrompt == null`
+until the kernel emits its next callback. No separate "processing" state was
+added; the snapshot exposes `cardPresented` and `pendingPrompt` so the UI can
+tell the two apart.
+
 ## 4. Prompts and replies
 
 The adapter asks; the app answers. Every prompt must be answered exactly once,
@@ -66,6 +72,19 @@ including on cancellation.
 
 `HostUnknown` is not a failure. It means the host response was not received and
 the transaction must be marked `UNKNOWN` and reconciled.
+
+Implementation notes:
+
+- `Cancel` is accepted on every answerable prompt, including
+  `RequestOnline`, because the state table allows cancelling `Online` and the
+  cancel rule says the pending prompt is always answered.
+- `PinCancelled` is a kernel-level PIN cancel and keeps the session alive so
+  the kernel can request another CVM or finish. Only `Cancel` ends the session
+  in `Cancelled`.
+- Rejections are values (`EmvRejection`); the domain never logs. Adapters log
+  `EmvPromptDelivery.Rejected` in debug builds.
+- `Declined` retains the capture, because declined transactions are still
+  persisted. Cancellation, timeout and failure never carry a capture.
 
 ## 5. Rules
 
@@ -114,19 +133,19 @@ Replies map to `setSelectApplicationResponse`, `setCardInfoResponse`,
 
 ## 8. Tasks
 
-- [ ] Add sealed `EmvState`, `EmvPrompt`, `EmvReply`, `AcquisitionResult`.
-- [ ] Implement the transition table with explicit validation and a rejected
+- [x] Add sealed `EmvState`, `EmvPrompt`, `EmvReply`, `AcquisitionResult`.
+- [x] Implement the transition table with explicit validation and a rejected
       transition error.
-- [ ] Implement reply-once enforcement and pending-prompt tracking.
-- [ ] Implement cancel, card-removed, session timeout, PIN timeout and
+- [x] Implement reply-once enforcement and pending-prompt tracking.
+- [x] Implement cancel, card-removed, session timeout, PIN timeout and
       second-tap limits.
-- [ ] Model the capture draft handed to `RequestOnline` and the final
+- [x] Model the capture draft handed to `RequestOnline` and the final
       `CardCapture`.
-- [ ] Expose a suspend entry point used by `CardAcceptor`, with no Android
+- [x] Expose a suspend entry point used by `CardAcceptor`, with no Android
       dependency.
-- [ ] Add a transition-matrix unit test and a property test that no sequence of
+- [x] Add a transition-matrix unit test and a property test that no sequence of
       random prompts can reach an illegal state.
-- [ ] Add a test that cancellation at each state answers the pending prompt and
+- [x] Add a test that cancellation at each state answers the pending prompt and
       ends in a terminal state.
 
 ## 9. Files
@@ -134,17 +153,37 @@ Replies map to `setSelectApplicationResponse`, `setCardInfoResponse`,
 | Action | Path |
 | --- | --- |
 | Add | `domain/card/emv/EmvState.kt` |
+| Add | `domain/card/emv/EmvDecision.kt` |
 | Add | `domain/card/emv/EmvPrompt.kt` |
 | Add | `domain/card/emv/EmvReply.kt` |
+| Add | `domain/card/emv/EmvRejection.kt` |
+| Add | `domain/card/emv/EmvTransition.kt` |
 | Add | `domain/card/emv/EmvSession.kt` |
+| Add | `domain/card/emv/EmvSessionPolicy.kt` |
+| Add | `domain/card/emv/EmvSessionSnapshot.kt` |
+| Add | `domain/card/emv/EmvSessionDriver.kt` |
+| Add | `domain/card/emv/EmvPromptDelivery.kt` |
+| Add | `domain/card/emv/EmvTimeouts.kt` |
 | Add | `domain/card/emv/AcquisitionResult.kt` |
-| Test | `app/src/test/java/.../domain/card/emv/` |
+| Add | `domain/card/emv/AcquisitionTimeout.kt` |
+| Add | `domain/card/emv/CardCaptureDraft.kt` |
+| Test | `app/src/test/java/.../domain/card/emv/EmvSessionTest.kt` |
+| Test | `app/src/test/java/.../domain/card/emv/EmvSessionPropertyTest.kt` |
+| Test | `app/src/test/java/.../domain/card/emv/EmvSessionDriverTest.kt` |
+| Test | `app/src/test/java/.../domain/card/emv/CardCaptureDraftTest.kt` |
 
 ## 10. Acceptance criteria
 
-- All transitions covered by tests, including illegal ones.
-- Cancel at every non-terminal state leaves the machine terminal and no capture.
-- Session timeout, PIN timeout, second-tap limit and card removal behave as
-  specified.
-- No `android.*` or vendor type in the package.
-- The fake adapter can drive a full approved and a full declined session.
+- [x] All transitions covered by tests, including illegal ones.
+- [x] Cancel at every non-terminal state leaves the machine terminal and no
+      capture.
+- [x] Session timeout, PIN timeout, second-tap limit and card removal behave as
+      specified.
+- [x] No `android.*` or vendor type in the package.
+- [x] The session can be driven through a full approved and a full declined
+      session; the fake `CardAcceptor` adapter itself lands in S1.3.
+
+Implementation status: 65 EMV tests and 220 total unit tests pass with
+`./gradlew --offline :app:testDebugUnitTest`. The driver tests cover approved,
+declined, delayed-host, cancel-during-PIN, card-removed and card-wait-timeout
+sessions.

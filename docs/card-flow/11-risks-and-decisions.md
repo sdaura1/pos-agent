@@ -96,3 +96,4 @@ For the vendor:
 | 2026-11-13 | S4a-3 implemented: key aliases, in-memory key store, KCV, SHA-256/hex utilities, fail-closed hash interface |
 | 2026-11-13 | Renamed key-exchange types for clarity: `NibssConnection`, `Iso8583Codec`, `TaggedFieldCodec`, `KeyCheckValue`, `ProvisioningResult`, `ProvisioningFailureReason`; split mapper and SHA-256 utilities |
 | 2026-11-13 | S1.1 implemented: `CardCapture`, `EmvData`, `PinBlockRef`, `GeoCoordinates`, `NfcData`, `EmvHostResponse`, `MessageReasonCode`, `ReplacementAmounts`, terminal traits, and DE90 correlation fields |
+| 2026-11-14 | S1.2 implemented: pure EMV session state machine with reply-once, cancellation, timeout, second-tap and card-removal rules, capture draft, suspend driver and 65 tests |
