@@ -100,11 +100,7 @@ CTMS uses the following codes to denote whether a data element should be present
 |102|Account identification 1|Optional|
 |103|Account identification 2|Optional|
 |120|Additional Data – Private Use (PoS Geo<br>coordinates|Mandatory|
-
-
-
 |123|POS data code|Mandatory|
-|---|---|---|
 |124|Near Field Communication Data|Conditional|
 |128|Secondary Message Hash Value|Mandatory|
 
@@ -131,11 +127,7 @@ CTMS uses the following codes to denote whether a data element should be present
 |30|Amount, transaction processing fee|Conditional|
 |32|Acquiring institution id code|Mandatory|
 |33|Forwarding institution id code|Conditional|
-
-
-
 |35|Track 2 data|Conditional|
-|---|---|---|
 |37|Retrieval reference number|Mandatory|
 |38|Authorization id response|Conditional|
 |39|Response code|Mandatory|
@@ -182,11 +174,7 @@ CTMS uses the following codes to denote whether a data element should be present
 |31|Amount, settle processing fee|Conditional|
 |32|Acquiring institution id code|Conditional|
 |33|Forwarding institution id code|Optional|
-
-
-
 |35|Track 2 data|Conditional|
-|---|---|---|
 |37|Retrieval reference number|Optional|
 |40|Service restriction code|Optional|
 |41|Card acceptor terminal id|Mandatory|
@@ -209,11 +197,7 @@ CTMS uses the following codes to denote whether a data element should be present
 |103|Account identification 2|Conditional|
 |120|Additional Data – Private Use (PoS Geo<br>coordinates|Mandatory|
 |123|POS data code|Mandatory|
-
-
-
 |124|Near Field Communication Data|Conditional|
-|---|---|---|
 |128|Secondary Message Hash Value|Mandatory|
 
 
@@ -240,11 +224,7 @@ CTMS uses the following codes to denote whether a data element should be present
 |25|POS condition code|Mandatory|
 |28|Amount, transaction fee|Optional|
 |29|Amount, settlement fee|Conditional|
-
-
-
 |30|Amount, transaction processing fee|Optional|
-|---|---|---|
 |31|Amount, settle processing fee|Conditional|
 |32|Acquiring institution id code|Optional|
 |33|Forwarding institution id code|Conditional|
@@ -267,11 +247,7 @@ CTMS uses the following codes to denote whether a data element should be present
 |90|Original data elements|Conditional|
 |102|Account identification 1|Optional|
 |103|Account identification 2|Optional|
-
-
-
 |123|POS data code|Mandatory|
-|---|---|---|
 |124|Near Field Communication Data|Conditional|
 |128|Secondary Message Hash Value|Mandatory|
 
@@ -298,11 +274,7 @@ CTMS uses the following codes to denote whether a data element should be present
 |26|POS PIN capture code|Conditional|
 |28|Amount, transaction fee|Mandatory|
 |29|Amount, settlement fee|Conditional|
-
-
-
 |30|Amount, transaction processing fee|Optional|
-|---|---|---|
 |32|Acquiring institution id code|Mandatory|
 |35|Track 2 data|Conditional|
 |37|Retrieval reference number|Mandatory|
@@ -353,11 +325,7 @@ CTMS uses the following codes to denote whether a data element should be present
 |35|Track 2 data|Conditional|
 |37|Retrieval reference number|Mandatory|
 |40|Service restriction code|Conditional|
-
-
-
 |41|Card acceptor terminal id|Optional|
-|---|---|---|
 |42|Card acceptor id code|Conditional|
 |43|Card acceptor name/location|Conditional|
 |49|Currency code, transaction|Mandatory|
@@ -384,11 +352,7 @@ CTMS uses the following codes to denote whether a data element should be present
 |4|Amount, transaction|Mandatory|
 |5|Amount, settlement|Conditional|
 |7|Transmission date and time|Mandatory|
-
-
-
 |9|Conversion rate, settlement|Conditional|
-|---|---|---|
 |11|Systems trace audit number|Mandatory|
 |12|Time, local transaction|Mandatory|
 |13|Date, local transaction|Mandatory|
@@ -411,11 +375,7 @@ CTMS uses the following codes to denote whether a data element should be present
 |40|Service restriction code|Optional|
 |41|Card acceptor terminal id|Mandatory|
 |42|Card acceptor id code|Mandatory|
-
-
-
 |43|Card acceptor name/location|Mandatory|
-|---|---|---|
 |45|Track 1 data|Optional|
 |49|Currency code, transaction|Mandatory|
 |50|Currency code, settlement|Conditional|
@@ -468,11 +428,7 @@ Presence Indicator
 |33|Forwarding institution id code|Conditional|
 |35|Track 2 data|Conditional|
 |37|Retrieval reference number|Mandatory|
-
-
-
 |38|Authorization id response|Conditional|
-|---|---|---|
 |40|Service restriction code|Conditional|
 |41|Card acceptor terminal id|Optional|
 |42|Card acceptor id code|Conditional|
@@ -496,18 +452,10 @@ Presence Indicator
 
 ### **Reversal Advice (Repeat) (0420/0421)** 
 
-|Bit Data|Element Name|
-|---|---|
-|2|Primary account number|
-
-
-
-Presence Indicator 
-
-Mandatory 
-
-|3|Processing code|Mandatory|
+|Bit Data|Element Name|Presence Indicator|
 |---|---|---|
+|2|Primary account number| Mandatory |
+|3|Processing code|Mandatory|
 |4|Amount, transaction|Mandatory|
 |7|Transmission date and time|Mandatory|
 |11|Systems trace audit number|Mandatory|
@@ -530,11 +478,7 @@ Mandatory
 |41|Card acceptor terminal id|Mandatory|
 |42|Card acceptor id code|Mandatory|
 |43|Card acceptor name/location|Mandatory|
-
-
-
 |49|Currency code, transaction|Mandatory|
-|---|---|---|
 |52|PIN data|Conditional|
 |54|Additional amount|Conditional|
 |56|Message reason code|Mandatory|
@@ -561,11 +505,7 @@ Mandatory
 |12|Time, local transaction|Mandatory|
 |13|Date, local transaction|Conditional|
 |14|Date, expiration|Conditional|
-
-
-
 |15|Date, settlement|Conditional|
-|---|---|---|
 |18|Merchant’s type|Mandatory|
 |22|POS entry mode|Mandatory|
 |23|Card sequence number|Optional|
@@ -588,11 +528,7 @@ Mandatory
 |59|Transport (echo) data|Conditional|
 |90|Original data elements|Mandatory|
 |95|Replacement amount|Mandatory|
-
-
-
 |102|Account identification 1|Optional|
-|---|---|---|
 |103|Account identification 2|Optional|
 |123|POS data code|Mandatory|
 |124|Near Field Communication Data|Conditional|
@@ -693,11 +629,7 @@ Transaction Type
 |90|PIN Change|0100|
 |9A|Terminal Master Key|0800|
 |9B|Terminal Session Key|0800|
-
-
-
 |9G|Terminal PIN Key|0800|
-|---|---|---|
 |9I|Initial PIN Encryption Key Download – Track2<br>Data|0800|
 |9J|Initial PIN Encryption Key Download – EMV|0800|
 |9C|Terminal Parameter Download|0800|
@@ -904,11 +836,7 @@ A code that describes the condition under which the transaction takes place at t
 |08|Mail/telephone order|
 |09|POS security alert|
 |10|Customer identity verified|
-
-
-
 |11|Suspected fraud|
-|---|---|
 |12|Security reasons|
 |13|Representation of item|
 |14|Public utility terminal|
@@ -1071,13 +999,7 @@ A code assigned by the authorizing institution indicating approval.
 |13|Invalid amount||
 |14|Invalid card number||
 |15|No such issuer||
-
-
-
-A code that defines the disposition of a transaction. 
-
 |16|Approved, update track 3|
-|---|---|
 |17|Customer cancellation|
 |18|Customer dispute|
 |19|Re-enter transaction|
@@ -1099,11 +1021,7 @@ A code that defines the disposition of a transaction.
 |35|Contact acquirer, pick-up|
 |36|Restricted card, pick-up|
 |37|Call acquirer security, pick-up|
-
-
-
 |38|PIN tries exceeded, pick-up|
-|---|---|
 |39|No credit account|
 |40|Function not supported|
 |41|Lost card|
@@ -1125,11 +1043,7 @@ A code that defines the disposition of a transaction.
 |63|Security violation|
 |64|Original amount incorrect|
 |65|Exceeds withdrawal frequency|
-
-
-
 |66|Call acquirer security||
-|---|---|---|
 |67|Hard capture||
 |68|Response received too late||
 |75|PIN tries exceeded||
@@ -1454,13 +1368,7 @@ The variable length data for a tag cannot exceed the maximum specified length sp
 |5F2A|Transaction Currency Code|H2|EMV Request|Y|N/A|
 |82|Application Interchange<br>Profile|H2|EMV Request|Y|N/A|
 |9F1A|Terminal Country Code|H2|EMV Request|Y|N/A|
-
-
-
-
-
 |9F34|Cardholder Verification<br>Method Results|H4|EMV Discretional<br>Data|N|N/A|
-|---|---|---|---|---|---|
 |9F33|Terminal Capabilities|H3|EMV Discretional<br>Data|N|N/A|
 |9F35|Terminal Type|H1|EMV Request|N|N/A|
 |9F1E|Interface Device Serial<br>Number|H8|EMV Discretional<br>Data|N|N/A|
@@ -1708,11 +1616,7 @@ Tag + LLL + data.
 |20|EMV DDOL||||
 |21|EMV TDOL||||
 |22|EMV TFL<br>Domestic||||
-
-
-
 |23|EMV TFL<br>International|||
-|---|---|---|---|
 |24|EMV Offline<br>Threshold<br>Domestic|||
 |25|EMV Max Target<br>Domestic|||
 |26|EMV Max Target<br>International|||
@@ -1730,11 +1634,7 @@ Tag + LLL + data.
 ||CA Key Internal|||
 |33|Reference|||
 ||Number|||
-
-
-
 |34|CA Key Name|||
-|---|---|---|---|
 |35|EMV RID|||
 |36|Hash Algorithm|||
 |37|EMV CA PK<br>Modulus|||
@@ -2268,11 +2168,7 @@ Message type code is required in each message. NCS supports the message types sh
 ||0202|Financial Transaction Completion|
 ||0210|Financial Transaction Response|
 ||0212|Financial Transaction Completion Response|
-
-
-
 ||0220|Financial Transaction Advice|
-|---|---|---|
 ||0230|Financial Transaction Advice Response|
 |Reversal|0420|Reversal Advice|
 ||0421|Reversal Advice Repeat|
@@ -2306,11 +2202,7 @@ NCS System uses the following codes to denote whether a data element should be p
 |12|Time, local transaction|Mandatory|
 |13|Date, local transaction|Mandatory|
 |14|Date, expiration|Conditional|
-
-
-
 |15|Date, settlement|Conditional|
-|---|---|---|
 |16|Date, conversion|Conditional|
 |18|Merchant’s type|Conditional|
 |22|POS entry mode|Mandatory|
@@ -2333,11 +2225,7 @@ NCS System uses the following codes to denote whether a data element should be p
 |45|Track 1 data|Optional|
 |49|Currency code, transaction|Mandatory|
 |50|Currency code, settlement|Conditional|
-
-
-
 |52|PIN data|Conditional|
-|---|---|---|
 |53|Security related control information|Conditional|
 |54|Additional amounts|Conditional|
 |56|Message reason code|Optional|
@@ -2360,11 +2248,7 @@ NCS System uses the following codes to denote whether a data element should be p
 |127.13|POS Geographic data|Mandatory|
 |127.14|Sponsor bank|Conditional|
 |127.15|Address verification data|Conditional|
-
-
-
 |127.18|Validation data|Optional|
-|---|---|---|
 |127.19|Bank Details|Conditional|
 |127.20|Originator/Authorizer date settlement|Optional|
 |127.23|Payee name and address|Conditional|
@@ -2403,11 +2287,7 @@ NCS System uses the following codes to denote whether a data element should be p
 |37|Retrieval reference number|Mandatory|
 |38|Authorization id response|Conditional|
 |39|Response code|Mandatory|
-
-
-
 |40|Service restriction code|Conditional|
-|---|---|---|
 |41|Card acceptor terminal id|Optional|
 |42|Card acceptor id code|Conditional|
 |43|Card acceptor name/location|Conditional|
@@ -2455,11 +2335,7 @@ NCS System uses the following codes to denote whether a data element should be p
 |30|Amount, transaction processing fee|Optional|
 |31|Amount, settle processing fee|Conditional|
 |32|Acquiring institution id code|Conditional|
-
-
-
 |33|Forwarding institution id code|Optional|
-|---|---|---|
 |35|Track 2 data|Conditional|
 |37|Retrieval reference number|Optional|
 |40|Service restriction code|Optional|
@@ -2482,11 +2358,7 @@ NCS System uses the following codes to denote whether a data element should be p
 |103|Account identification 2|Conditional|
 |123|POS data code|Mandatory|
 |124|Near Field Communication Data|Conditional|
-
-
-
 |127.1|Bitmap|Conditional|
-|---|---|---|
 |127.4|POS data|Optional|
 |127.5|Service station data|Optional|
 |127.7|Check data|Conditional|
@@ -2529,11 +2401,7 @@ NCS System uses the following codes to denote whether a data element should be p
 |30|Amount, transaction processing fee|Optional|
 |31|Amount, settle processing fee|Conditional|
 |32|Acquiring institution id code|Optional|
-
-
-
 |33|Forwarding institution id code|Conditional|
-|---|---|---|
 |35|Track 2 data|Conditional|
 |37|Retrieval reference number|Optional|
 |38|Authorization id response|Conditional|
@@ -2556,11 +2424,7 @@ NCS System uses the following codes to denote whether a data element should be p
 |124|Near Field Communication Data|Conditional|
 |127.1|Bitmap|Conditional|
 |127.2|Switch Key|Optional|
-
-
-
 |127.3|Routing Information|Mandatory|
-|---|---|---|
 |127.6|Authorization profile|Optional|
 |127.12|Terminal Owner|Conditional|
 |127.16|Address verification result|Conditional|
@@ -2599,11 +2463,7 @@ NCS System uses the following codes to denote whether a data element should be p
 |28|Amount, transaction fee|Optional|
 |29|Amount, settlement fee|Conditional|
 |30|Amount, transaction processing fee|Optional|
-
-
-
 |31|Amount, settle processing fee|Conditional|
-|---|---|---|
 |32|Acquiring institution id code|Conditional|
 |33|Forwarding institution id code|Optional|
 |35|Track 2 data|Conditional|
@@ -2626,11 +2486,7 @@ NCS System uses the following codes to denote whether a data element should be p
 |98|Payee|Conditional|
 |100|Receiving institution id code|Conditional|
 |102|Account identification 1|Conditional|
-
-
-
 |103|Account identification 2|Conditional|
-|---|---|---|
 |123|POS data code|Mandatory|
 |124|Near Field Communication Data|Conditional|
 |127.1|Bitmap|Conditional|
@@ -2685,11 +2541,7 @@ Conditional
 |28|Amount, transaction fee|Optional|
 |29|Amount, settlement fee|Conditional|
 |30|Amount, transaction processing fee|Optional|
-
-
-
 |31|Amount, settle processing fee|Conditional|
-|---|---|---|
 |32|Acquiring institution id code|Optional|
 |33|Forwarding institution id code|Conditional|
 |35|Track 2 data|Conditional|
@@ -2712,11 +2564,7 @@ Conditional
 |123|POS data code|Mandatory|
 |124|Near Field Communication Data|Conditional|
 |127.1|Bitmap|Conditional|
-
-
-
 |127.2|Switch Key|Optional|
-|---|---|---|
 |127.3|Routing Information|Mandatory|
 |127.6|Authorization profile|Optional|
 |127.12|Terminal Owner|Conditional|
@@ -2756,11 +2604,7 @@ Conditional
 |29|Amount, settlement fee|Conditional|
 |30|Amount, transaction processing fee|Optional|
 |31|Amount, settle processing fee|Conditional|
-
-
-
 |32|Acquiring institution id code|Conditional|
-|---|---|---|
 |33|Forwarding institution id code|Optional|
 |35|Track 2 data|Conditional|
 |37|Retrieval reference number|Optional|
@@ -2783,11 +2627,7 @@ Conditional
 |100|Receiving Institution ID Code|Optional|
 |102|Account identification 1|Conditional|
 |103|Account identification 2|Conditional|
-
-
-
 |123|POS data code|Mandatory|
-|---|---|---|
 |124|Near Field Communication Data|Conditional|
 |127.1|Bitmap|Conditional|
 |127.4|POS data|Optional|
@@ -2832,11 +2672,7 @@ Conditional
 |30|Amount, transaction processing fee|Optional|
 |31|Amount, settle processing fee|Conditional|
 |32|Acquiring institution id code|Optional|
-
-
-
 |33|Forwarding institution id code|Conditional|
-|---|---|---|
 |35|Track 2 data|Conditional|
 |37|Retrieval reference number|Optional|
 |38|Authorization id response|Conditional|
@@ -2859,11 +2695,7 @@ Conditional
 |124|Near Field Communication Data|Conditional|
 |127.1|Bitmap|Conditional|
 |127.2|Switch Key|Optional|
-
-
-
 |127.3|Routing Information|Mandatory|
-|---|---|---|
 |127.6|Authorization profile|Optional|
 |127.12|Terminal Owner|Conditional|
 |127.16|Address verification result|Conditional|
@@ -2902,11 +2734,7 @@ Conditional
 |30|Amount, transaction processing fee|Optional|
 |31|Amount, settle processing fee|Conditional|
 |32|Acquiring institution id code|Conditional|
-
-
-
 |33|Forwarding institution id code|Optional|
-|---|---|---|
 |35|Track 2 data|Conditional|
 |37|Retrieval reference number|Optional|
 |38|Authorization id response|Conditional|
@@ -2929,11 +2757,7 @@ Conditional
 |124|Near Field Communication Data|Conditional|
 |127.1|Bitmap|Conditional|
 |127.4|POS data|Optional|
-
-
-
 |127.5|Service station data|Optional|
-|---|---|---|
 |127.12|Terminal owner|Conditional|
 |127.13|POS Geographic data|Mandatory|
 |127.14|Sponsor bank|Conditional|
@@ -2973,11 +2797,7 @@ Conditional
 |32|Acquiring institution id code|Conditional|
 |33|Forwarding institution id code|Optional|
 |35|Track 2 data|Conditional|
-
-
-
 |37|Retrieval reference number|Optional|
-|---|---|---|
 |38|Authorization id response|Conditional|
 |39|Response code|Mandatory|
 |40|Service restriction code|Optional|
@@ -3251,11 +3071,7 @@ A code that describes the condition under which the transaction takes place at t
 |20|Payment out of balance – return|
 |21|Manual reversal|
 |22|Terminal error – counted|
-
-
-
 |23|Terminal error - not counted|
-|---|---|
 |24|Deposit out of balance – apply|
 |25|Payment out of balance – apply|
 |26|Withdrawal error – reversed|
@@ -3433,11 +3249,7 @@ A code that defines the disposition of a transaction.
 |34|Suspected fraud, pick-up|
 |35|Contact acquirer, pick-up|
 |36|Restricted card, pick-up|
-
-
-
 |37|Call acquirer security, pick-up|
-|---|---|
 |38|PIN tries exceeded, pick-up|
 |39|No credit account|
 |40|Function not supported|
@@ -3459,11 +3271,7 @@ A code that defines the disposition of a transaction.
 |62|Restricted card|
 |63|Security violation|
 |64|Original amount incorrect|
-
-
-
 |65|Exceeds withdrawal frequency|
-|---|---|
 |66|Call acquirer security|
 |67|Hard capture|
 |68|Response received too late|
@@ -3687,11 +3495,7 @@ Below is a list of tags supported.
 |To account|TO_ACC|n2|
 |Transaction<br>amount|TRAN_AMOUNT|n12|
 |Account ID 1|ACC_ID1|ans28|
-
-
-
 |Account ID 2|ACC_ID2|ans28|
-|---|---|---|
 |Authorization ID|AUTH_ID|n6|
 |Currency code|CURR_CODE|n3 (Currency code of the Transaction Amount field)|
 |Surcharge|SURCHARGE|n8|
@@ -3814,11 +3618,7 @@ For original authorizations and financial transactions, it identifies why the ty
 |1800|Negative card|
 |4000|Customer cancellation|
 |4001|Unspecified, no action taken|
-
-
-
 |4004|Completed partially|
-|---|---|
 |4021|Timeout waiting for response|
 
 
@@ -4356,13 +4156,7 @@ The IccRequest tag may be present for a request or advice message (0100, 0120, 0
 |AmountOther|n12|Conditional|transaction,<br>representing a<br>cashback amount.|
 ||||Identifies the<br>application on the ICC<br>as described in ISO/IEC|
 |ApplicationIdentifier|ans..32|Optional|7816-5.<br>(Field value: translate<br>16 byte binary EMV<br>value to 32 byte hex<br>string.)|
-
-
-
-
-
 |ApplicationInterchangeProfile|ans4|Conditional|Indicates the<br>capabilities of the ICC<br>to support specific<br>functions in the<br>application.<br>(Field value: translate 2<br>byte binary EMV value<br>to 4 byte hex string.)|
-|---|---|---|---|
 ||||Counter maintained by<br>the application in the<br>ICC. (Incrementing the|
 |ApplicationTransactionCounter|ans4|Conditional|ATC is managed by the<br>ICC).|
 ||||(Field value: translate 2<br>byte binary EMV value<br>to 4 byte hex string.)|
@@ -4372,13 +4166,7 @@ The IccRequest tag may be present for a request or advice message (0100, 0120, 0
 ||||Code returned by the<br>issuer or generated by|
 |AuthorizationResponseCode|an2|Optional|the terminal if it did not<br>receive an online|
 ||||response from the<br>issuer.|
-
-
-
-
-
 |CardAuthenticationReliabilityIndicator|n1|Optional|May be set and sent by<br>the acquirer when the<br>acquirer or issuer is<br>inactive for card<br>authentication.|
-|---|---|---|---|
 |CardAuthenticationResultsCode|ans1|Optional|An issuer-supplied code<br>indicating card<br>authentication results.|
 ||||Indicates the status of|
 |ChipConditionCode|n1|Optional|last chip attempt at the<br>terminal.|
@@ -4386,26 +4174,14 @@ The IccRequest tag may be present for a request or advice message (0100, 0120, 0
 |Cryptogram|ans16|Conditional|Authentication<br>Cryptogram (AAC) for a<br>declined transaction, or<br>Transaction Certificate<br>(TC) for an approved<br>transaction.|
 ||||(Field value: translate 8<br>byte binary EMV value|
 ||||to 16 byte hex string.)|
-
-
-
-
-
 |CryptogramInformationData|ans2|Conditional|Indicates the type of<br>cryptogram returned by<br>the ICC (ARQC, AAC or<br>TC) and the actions to<br>be performed by the<br>terminal.<br>(Field value: translate 1<br>byte binary EMV value<br>to 2 byte hex string.)|
-|---|---|---|---|
 ||||Identifies the cardholder<br>verification methods<br>(CVMs) supported by|
 |CvmList|ans..504|Optional|the application.<br>(Field value: translate<br>252 byte binary EMV<br>value to 504 byte hex<br>string.)|
 ||||Cardholder verification<br>method (CVM) results<br>indicating the results of|
 |CvmResults|ans6|Optional|the last CVM performed.<br>(Field value: translate 3<br>byte binary EMV value<br>to 6 byte hex string.)|
 ||||A unique and<br>permanent serial|
 |InterfaceDeviceSerialNumber|an8|Conditional|number assigned to the<br>interface device (IFD) by<br>the terminal<br>manufacturer|
-
-
-
-
-
 |IssuerActionCode||Optional|Card parameters that<br>instruct the terminal<br>about actions to take<br>under various<br>conditions.|
-|---|---|---|---|
 |Default|ans10|Conditional|Specifies the issuer's<br>conditions that cause a<br>transaction to be<br>rejected if it might have<br>been approved online,<br>but the terminal is<br>unable to process the<br>transaction online.<br>(Field value: translate 5<br>byte binary EMV value<br>to 10 byte hex string.)|
 ||||Specifies the issuer's<br>conditions that cause|
 ||||the denial of a|
@@ -4415,17 +4191,8 @@ The IccRequest tag may be present for a request or advice message (0100, 0120, 0
 |Online|ans10|Conditional|transmitted online.<br>(Field value: translate 5|
 ||||byte binary EMV value|
 ||||to 10 byte hex string.)|
-
-
-
-
-
-Proprietary application data for transmission from the ICC to the issuer. May contain the following subfields: Scheme Discretionary Data, Issuer Discretionary Data, Derivation Key Index, IssuerApplicationData ans..64 Conditional Cryptogram Version Number, Card Verification Results, DAC. The layout of this field is specific to the issuer. (Field value: translate 32 byte binary EMV value to 64 byte hex string.) Indicates the result of the terminal script processing. IssuerScriptResults ans.. Optional (Field value: translate binary EMV value to hex string.) Version number assigned by the TerminalApplicationVersionNumber ans4 Optional payment system for the application. 
-
-
-
+Proprietary application data for transmission from the ICC to the issuer. May contain the following subfields: Scheme Discretionary Data, Issuer Discretionary Data, Derivation Key Index, IssuerApplicationData ans..64 Conditional Cryptogram Version Number, Card Verification Results, DAC. The layout of this field is specific to the issuer. (Field value: translate 32 byte binary EMV value to 64 byte hex string.) Indicates the result of the terminal script processing. IssuerScriptResults ans.. Optional (Field value: translate binary EMV value to hex string.) Version number assigned by the TerminalApplicationVersionNumber ans4 Optional payment system for the application.
 ||||Indicates the card data|
-|---|---|---|---|
 |TerminalCapabilities|ans6|Optional|input, CVM, and security<br>capabilities of the<br>terminal.<br>(Field value: translate 3<br>byte binary EMV value<br>to 6 byte hex string.)|
 ||||Indicates the country of|
 |TerminalCountryCode|n3|Conditional|the terminal,<br>represented according<br>to ISO 3166.|
@@ -4437,13 +4204,7 @@ Proprietary application data for transmission from the ICC to the issuer. May co
 |TransactionCategoryCode|ans1|Optional|authorization is being<br>requested. Used in risk<br>management.|
 ||||Indicates the currency|
 |TransactionCurrencyCode|n3|Conditional|code of the transaction<br>according to ISO 4217.|
-
-
-
-
-
 |TransactionDate|n6|Conditional|The local date (in<br>YYMMDD format) on<br>which the transaction<br>was authorized.|
-|---|---|---|---|
 ||||Counter maintained bythe|
 |TransactionSequenceCounter|n..8|Optional|terminal and<br>incremented by one for<br>each transaction.|
 ||||Indicates the type of the<br>transaction, represented|
@@ -4454,11 +4215,7 @@ Proprietary application data for transmission from the ICC to the issuer. May co
 |FormFactorIndicator|n8|Conditional|interface over which the<br>transaction was<br>conducted. This<br>information is made<br>available to the issuer<br>host.|
 ||||Identifies and|
 |ApplicationPrimaryAccountNumber|n2|Conditional|differentiates cards with<br>the same PAN|
-
-
-
 ||||Identifies the name of|
-|---|---|---|---|
 |DedicatedFileName||Conditional|i|
 ||5–16||the DF|
 
@@ -4474,13 +4231,7 @@ The IccResponse tag may be present for request response message (0110 or 0210).
 ||||An issuer-supplied code|
 |CardAuthenticationResultsCode|ans1|Optional|indicating card authentication<br>results.|
 |IssuerAuthenticationData|ans32|Optional|Data sent to the ICC for online<br>issuer authentication. May<br>contain the following subfields:<br>Authorization Response<br>Cryptogram (ARPC),<br>Authorization Response Code.<br>The layout of this field is<br>specific to the issuer.<br>(Field value: translate binary<br>EMV value to hex string.)|
-
-
-
-
-
 |IssuerScriptTemplate1|ans..|Optional|A command from the issuer for<br>transmission to the ICC. This<br>script is processed by the<br>terminal before sending the<br>second GENERATE AC<br>command to the ICC.<br>(Field value: translate 16 byte<br>binary EMV value to 32 byte<br>hex string.)|
-|---|---|---|---|
 ||||A command from the issuer for<br>transmission to the ICC. This<br>script is processed by the|
 |IssuerScriptTemplate2|ans..|Optional|terminal after sending the<br>second GENERATE AC<br>command to the ICC.|
 ||||(Field value: translate binary<br>EMV value to hex string.)|
