@@ -79,11 +79,11 @@ class EmvSessionDriver(
 
             fun refreshTimer() {
                 val current = session.snapshot
-                val duration = when {
-                    current.state == EmvState.WaitingForCard && !current.cardPresented ->
+                val duration = when (current.state) {
+                    EmvState.WaitingForCard if !current.cardPresented ->
                         timeouts.cardWait
 
-                    current.state == EmvState.SecondTap && !current.cardPresented ->
+                    EmvState.SecondTap if !current.cardPresented ->
                         timeouts.secondTap
 
                     else -> null
